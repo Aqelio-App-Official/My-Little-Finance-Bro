@@ -1,0 +1,1406 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>My Little Finance Bro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#DDF2EA; --bg2:#C9E7DB; --surface:#FFFFFF; --surface2:#EEF9F4;
+  --ink:#14303B; --ink2:#48656F; --line:#BFDDD1; --edge:#14303B;
+  --green:#12A05F; --green-t:#D3F4E3; --on-green:#FFFFFF;
+  --gold:#F5B71C; --gold-t:#FFF0C4; --gold-ink:#3D2A00;
+  --pink:#FF6B8B; --pink-t:#FFDCE5; --sky:#2FA8E0; --sky-t:#D6F0FB;
+  --red:#E5484D; --red-t:#FFDADA; --violet:#8A5CF0;
+  --font-d:'Fredoka','Trebuchet MS',system-ui,sans-serif;
+  --font-b:'Figtree',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  color-scheme:light dark;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0E2028; --bg2:#14313B; --surface:#17303A; --surface2:#1D3B46;
+    --ink:#E8F5F0; --ink2:#9FBDB6; --line:#2A4B56; --edge:#050E12;
+    --green:#38D48B; --green-t:#14402E; --on-green:#06231A;
+    --gold-t:#463A14; --pink-t:#4A2432; --sky:#4DBBEA; --sky-t:#153A4B; --red-t:#4A2226;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0E2028; --bg2:#14313B; --surface:#17303A; --surface2:#1D3B46;
+  --ink:#E8F5F0; --ink2:#9FBDB6; --line:#2A4B56; --edge:#050E12;
+  --green:#38D48B; --green-t:#14402E; --on-green:#06231A;
+  --gold-t:#463A14; --pink-t:#4A2432; --sky:#4DBBEA; --sky-t:#153A4B; --red-t:#4A2226;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:env(safe-area-inset-top,0px);background:var(--bg)}
+body{margin:0;background-color:var(--bg);background-image:radial-gradient(var(--bg2) 1.6px,transparent 1.6px);background-size:24px 24px;color:var(--ink);font:500 16px/1.45 var(--font-b);min-height:100vh;padding-bottom:96px}
+body.noscroll{overflow:hidden}
+h1,h2,h3,h4{font-family:var(--font-d);margin:0;font-weight:600;line-height:1.15;letter-spacing:.1px}
+h2{font-size:24px;margin:24px 0 10px}
+h3{font-size:18px}
+p{margin:0 0 10px}
+small,.muted{color:var(--ink2)}
+.fine{font-size:13px;color:var(--ink2)}
+button{font:inherit;color:inherit;cursor:pointer}
+button:disabled{cursor:not-allowed;opacity:.55}
+:focus-visible{outline:3px solid var(--sky);outline-offset:2px;border-radius:8px}
+.grow1{flex:1;min-width:0}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.row.end{justify-content:flex-end;margin-top:16px}
+.neg{color:var(--red)}
+.pos{color:var(--green)}
+.app{max-width:1080px;margin:0 auto;padding:0 14px}
+
+/* header */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:15;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;background:linear-gradient(var(--bg) 80%,transparent)}
+.brand{display:flex;align-items:center;gap:10px;min-width:0}
+.brand h1{font-size:19px;line-height:1.02}
+.logo{width:46px;height:46px;flex:none;border:2.5px solid var(--edge);border-radius:14px;overflow:hidden;background:var(--sky-t);box-shadow:0 3px 0 var(--edge)}
+.logo svg{display:block;width:100%;height:100%}
+.top-r{display:flex;align-items:center;gap:10px}
+.coins{display:flex;align-items:center;gap:6px;background:var(--gold-t);border:2.5px solid var(--edge);border-radius:99px;padding:5px 12px 5px 8px;font:600 18px var(--font-d);box-shadow:0 3px 0 var(--edge)}
+.icon-btn{width:44px;height:44px;display:grid;place-items:center;background:var(--surface);border:2.5px solid var(--edge);border-radius:14px;box-shadow:0 3px 0 var(--edge)}
+.icon-btn:active{transform:translateY(2px);box-shadow:0 1px 0 var(--edge)}
+.icon-btn svg,.tab svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+/* layout */
+.layout{display:grid;gap:16px}
+.stage-col{display:none}
+body[data-tab="home"] .stage-col{display:block}
+.content{min-width:0}
+@media (min-width:960px){
+  .layout{grid-template-columns:400px 1fr;align-items:start;gap:26px}
+  body[data-tab] .stage-col{display:block;position:sticky;top:calc(env(safe-area-inset-top,0px) + 74px)}
+  body{padding-bottom:40px}
+}
+
+/* nav */
+.tabs{position:fixed;left:0;right:0;bottom:0;z-index:20;display:flex;justify-content:space-around;gap:2px;background:var(--surface);border-top:2.5px solid var(--edge);padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px))}
+.tab{position:relative;flex:1;max-width:120px;display:flex;flex-direction:column;align-items:center;gap:2px;background:none;border:0;border-radius:14px;padding:6px 4px;font:600 12px var(--font-d);color:var(--ink2)}
+.tab.on{color:var(--on-green);background:var(--green)}
+.tab .dot{position:absolute;top:3px;right:calc(50% - 20px);min-width:16px;height:16px;border-radius:99px;background:var(--pink);color:#fff;font:700 10px/16px var(--font-d);text-align:center;border:2px solid var(--surface);padding:0 3px}
+@media (min-width:960px){
+  .tabs{position:sticky;top:calc(env(safe-area-inset-top,0px) + 74px);bottom:auto;left:auto;right:auto;z-index:12;border:2.5px solid var(--edge);border-radius:20px;box-shadow:0 4px 0 var(--edge);padding:6px;margin-bottom:14px}
+  .tab{flex-direction:row;justify-content:center;gap:8px;font-size:15px;max-width:none;padding:9px 6px}
+  .tab .dot{position:static;margin-left:2px;border-color:transparent}
+}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;font:600 16px var(--font-d);background:var(--surface);color:var(--ink);border:2.5px solid var(--edge);border-radius:14px;padding:9px 16px;box-shadow:0 4px 0 var(--edge);transition:transform .06s,box-shadow .06s;min-height:44px}
+.btn:active:not(:disabled){transform:translateY(3px);box-shadow:0 1px 0 var(--edge)}
+.btn.primary{background:var(--green);color:var(--on-green)}
+.btn.gold{background:var(--gold);color:var(--gold-ink)}
+.btn.danger{background:var(--red);color:#fff}
+.btn.ghost{background:transparent;box-shadow:none;border-color:var(--line)}
+.btn.sm{padding:5px 12px;font-size:14px;min-height:36px;box-shadow:0 3px 0 var(--edge);border-radius:12px}
+.btn.big{width:100%;font-size:19px;padding:13px}
+.link{background:none;border:0;padding:6px 4px;color:var(--ink2);font:600 14px var(--font-b);text-decoration:underline;text-underline-offset:3px;min-height:36px}
+.link.dng{color:var(--red)}
+.x{background:none;border:0;color:var(--ink2);width:32px;height:32px;border-radius:8px;font-size:14px}
+.x:hover{background:var(--red-t);color:var(--red)}
+
+/* cards */
+.card{background:var(--surface);border:2px solid var(--line);border-radius:20px;padding:16px;margin-bottom:12px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stat{background:var(--surface2);border-radius:14px;padding:10px 12px;min-width:0}
+.stat b{display:block;font:600 21px/1.15 var(--font-d);overflow-wrap:anywhere}
+.stat span{font-size:13px;color:var(--ink2)}
+.qa{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:6px}
+.qa .btn{flex-direction:column;gap:2px;font-size:15px;padding:8px 6px;line-height:1.1}
+.qa .btn span{font-size:22px}
+
+/* stage */
+.stage{background:var(--surface);border:2.5px solid var(--edge);border-radius:28px;box-shadow:0 6px 0 var(--edge);padding:14px}
+.stage-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.stage-head .nm{font:600 24px var(--font-d);overflow-wrap:anywhere}
+.stage-head .ttl{font-size:14px;color:var(--ink2)}
+.streak{font:600 15px var(--font-d);background:var(--pink-t);border-radius:99px;padding:4px 12px;white-space:nowrap}
+.xp{height:8px;border-radius:99px;background:var(--surface2);margin:8px 0 12px;overflow:hidden;border:1.5px solid var(--line)}
+.xp i{display:block;height:100%;background:var(--violet);border-radius:99px;transition:width .4s}
+.bubble{position:relative;width:min(100%,330px);margin:0 auto 14px;background:var(--surface2);border:2.5px solid var(--edge);border-radius:16px;padding:9px 13px;font-size:14.5px;line-height:1.3;min-height:3.6em;display:flex;align-items:center}
+.bubble::after{content:"";position:absolute;bottom:-9px;left:50%;width:14px;height:14px;background:var(--surface2);border-right:2.5px solid var(--edge);border-bottom:2.5px solid var(--edge);transform:translateX(-50%) rotate(45deg)}
+.bubble.pop{animation:pop .3s ease-out}
+.scene-wrap{position:relative;width:min(100%,330px);margin:0 auto}
+.scene{display:block;width:100%;padding:0;border:2.5px solid var(--edge);border-radius:22px;overflow:hidden;background:var(--surface2);aspect-ratio:5/6;touch-action:manipulation}
+.scene svg{display:block;width:100%;height:100%}
+.pv-tag{position:absolute;left:8px;right:8px;bottom:8px;display:flex;align-items:center;justify-content:space-between;gap:8px;background:var(--surface);border:2px solid var(--edge);border-radius:12px;padding:5px 8px 5px 12px;font-size:13.5px;font-weight:600}
+.pv-tag button{background:var(--gold);color:var(--gold-ink);border:2px solid var(--edge);border-radius:8px;padding:2px 10px;font-weight:700}
+.meters{display:grid;gap:7px;margin:14px 0}
+.meter{display:grid;grid-template-columns:52px 1fr 30px;align-items:center;gap:8px;font-size:14px}
+.meter span{font:600 14px var(--font-d)}
+.meter b{text-align:right;font-family:var(--font-d)}
+.bar{height:14px;border-radius:99px;background:var(--surface2);border:2px solid var(--edge);overflow:hidden}
+.bar i{display:block;height:100%;border-radius:99px;transition:width .4s,background .3s}
+.bar.green i{background:var(--green)} .bar.gold i{background:var(--gold)} .bar.pink i{background:var(--pink)} .bar.red i{background:var(--red)} .bar.sky i{background:var(--sky)}
+.stage-actions{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stage-actions .btn{padding:8px 6px;font-size:15px}
+.heart{position:absolute;font-size:22px;pointer-events:none;animation:floatUp 1s ease-out forwards;z-index:3}
+.bro{transform-origin:100px 228px;animation:bob 3.2s ease-in-out infinite}
+.eye{transform-box:fill-box;transform-origin:center;animation:blink 5.5s infinite}
+.chew{transform-box:fill-box;transform-origin:center;animation:chew .3s infinite alternate}
+@keyframes bob{0%,100%{transform:scale(1,1)}50%{transform:scale(1.015,.985)}}
+@keyframes blink{0%,93%,100%{transform:scaleY(1)}96%{transform:scaleY(.1)}}
+@keyframes chew{to{transform:scaleY(.55)}}
+@keyframes floatUp{0%{opacity:1;transform:translateY(0) scale(.7)}100%{opacity:0;transform:translateY(-90px) scale(1.2)}}
+@keyframes pop{0%{transform:scale(.94)}60%{transform:scale(1.03)}100%{transform:scale(1)}}
+.burst{position:fixed;inset:0;pointer-events:none;z-index:90;overflow:hidden}
+.burst span{position:absolute;top:60%;font-size:26px;animation:burst 1.2s ease-out forwards}
+@keyframes burst{0%{transform:translate(0,0) scale(.4);opacity:1}100%{transform:translate(var(--x),var(--y)) rotate(var(--r)) scale(1);opacity:0}}
+
+/* advice */
+.adv{display:flex;gap:12px;background:var(--surface);border:2px solid var(--line);border-left-width:8px;border-radius:16px;padding:12px 14px;margin-bottom:10px}
+.adv.warn{border-left-color:var(--red)} .adv.caution{border-left-color:var(--gold)} .adv.info{border-left-color:var(--sky)} .adv.good{border-left-color:var(--green)}
+.adv .ai{font-size:26px;line-height:1.2}
+.adv h3{font-size:17px;margin-bottom:3px}
+.adv p{font-size:15px;color:var(--ink2);margin-bottom:8px}
+
+/* budget */
+.mnav{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:4px 0 12px}
+.mnav h2{margin:0;font-size:22px}
+.mnav .icon-btn{width:38px;height:38px;border-radius:12px;font-weight:700}
+.split{display:flex;height:16px;border-radius:99px;overflow:hidden;border:2px solid var(--edge);background:var(--surface2);margin:12px 0 6px}
+.split i{display:block;height:100%}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--ink2)}
+.legend em{font-style:normal;display:inline-flex;align-items:center;gap:5px}
+.legend em::before{content:"";width:10px;height:10px;border-radius:3px;background:var(--c)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.cat{background:var(--surface);border:2px solid var(--line);border-radius:18px;padding:14px}
+.cat-h{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.ce{font-size:28px;width:44px;height:44px;flex:none;display:grid;place-items:center;background:var(--surface2);border-radius:14px}
+.cat-h b{font-size:14px;text-align:right}
+.cat-a{display:flex;align-items:center;justify-content:space-between;margin-top:10px}
+.li{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px dashed var(--line);font-size:15px}
+.li:last-child{border-bottom:0}
+.li .d{color:var(--ink2);width:52px;flex:none;font-size:13px}
+.empty{text-align:center;padding:26px 16px;border:2px dashed var(--line);border-radius:20px;color:var(--ink2);margin-bottom:12px}
+.empty b{display:block;font:600 19px var(--font-d);color:var(--ink);margin-bottom:4px}
+.empty .btn{margin-top:10px}
+
+/* segmented + chips */
+.seg{display:flex;gap:6px;background:var(--surface2);border:2px solid var(--line);border-radius:16px;padding:4px;flex-wrap:wrap}
+.seg button{flex:1;min-width:0;background:none;border:0;border-radius:12px;padding:8px 10px;font:600 15px var(--font-d);color:var(--ink2);min-height:40px}
+.seg button.on{background:var(--green);color:var(--on-green)}
+.seg button.swatch{flex:none;width:40px;height:40px;border-radius:50%;background:var(--sw);border:3px solid var(--edge);padding:0}
+.seg button.swatch.on{outline:3px solid var(--sky);outline-offset:2px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{width:44px;height:44px;font-size:22px;background:var(--surface2);border:2px solid var(--line);border-radius:12px;padding:0}
+.chip.on{border-color:var(--green);background:var(--green-t)}
+.slots{display:flex;gap:6px;overflow-x:auto;padding:2px 2px 8px;margin-bottom:6px}
+.slots button{flex:none;background:var(--surface);border:2px solid var(--line);border-radius:99px;padding:7px 16px;font:600 15px var(--font-d)}
+.slots button.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+
+/* shop */
+.mini-prev{position:sticky;top:calc(env(safe-area-inset-top,0px) + 68px);z-index:6;display:flex;gap:12px;align-items:center;background:var(--surface);border:2.5px solid var(--edge);border-radius:20px;padding:8px 12px;margin-bottom:12px;box-shadow:0 4px 0 var(--edge)}
+.mini-prev [data-live-bro]{width:84px;flex:none;border-radius:14px;overflow:hidden;border:2px solid var(--edge);aspect-ratio:5/6;background:var(--surface2)}
+.mini-prev svg{display:block;width:100%;height:100%}
+@media (min-width:960px){.mini-prev{display:none}}
+.items{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:12px}
+.item{background:var(--surface);border:2px solid var(--line);border-radius:18px;padding:10px;display:flex;flex-direction:column;gap:6px}
+.item.eq{border-color:var(--green);box-shadow:0 0 0 2px var(--green)}
+.thumb{aspect-ratio:1;border-radius:12px;overflow:hidden;background:var(--surface2);display:grid;place-items:center;font-size:54px}
+.thumb svg{display:block;width:100%;height:100%}
+.item h3{font-size:16px}
+.item small{font-size:12.5px}
+.tier{align-self:flex-start;font:600 12px var(--font-d);padding:1px 9px;border-radius:99px;background:var(--surface2);color:var(--ink2)}
+.tier.t-common{background:var(--sky-t);color:var(--ink)} .tier.t-rare{background:var(--green-t);color:var(--ink)} .tier.t-epic{background:#E8DBFF;color:#3B2472} .tier.t-legendary{background:var(--gold);color:var(--gold-ink)}
+.item-a{display:flex;gap:6px;margin-top:auto;flex-wrap:wrap}
+.item-a .btn{flex:1;padding:5px 8px;font-size:14px;min-height:36px;box-shadow:0 3px 0 var(--edge);border-radius:12px}
+
+/* quests */
+.quest{display:flex;gap:12px;align-items:center;background:var(--surface);border:2px solid var(--line);border-radius:18px;padding:12px 14px;margin-bottom:10px}
+.quest.ready{border-color:var(--gold);background:var(--gold-t)}
+.quest.done{opacity:.6}
+.quest h3{font-size:17px}
+.quest .qr{display:flex;align-items:center;gap:4px;font:600 15px var(--font-d);white-space:nowrap}
+
+/* goals, invest, market */
+.goal-h{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.pct{font:600 20px var(--font-d)}
+details{margin-top:8px}
+summary{cursor:pointer;font:600 14px var(--font-b);color:var(--ink2);padding:6px 0}
+.calc label{display:block;font-weight:600;font-size:14px;margin:10px 0 2px}
+.calc output{float:right;font-family:var(--font-d);font-weight:600}
+.calc input[type=range]{width:100%;accent-color:var(--green)}
+.calc-out{background:var(--green-t);border-radius:14px;padding:12px;margin:12px 0 4px;font-size:15px}
+.tick{display:grid;grid-template-columns:1fr auto;gap:8px 12px;background:var(--surface);border:2px solid var(--line);border-radius:18px;padding:12px 14px;margin-bottom:10px}
+.tick h3{font-size:17px}
+.tick .px{text-align:right;font:600 19px var(--font-d)}
+.tick .px small{display:block;font:600 13px var(--font-b)}
+.spark{width:110px;height:34px}
+.spark polyline{fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.spark.up polyline{stroke:var(--green)} .spark.dn polyline{stroke:var(--red)}
+.tick .full{grid-column:1/-1;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.bars{display:grid;gap:8px}
+.bars div{display:grid;grid-template-columns:110px 1fr 70px;gap:8px;align-items:center;font-size:14px}
+
+/* forms + modal */
+.modal-wrap{position:fixed;inset:0;z-index:60;background:rgba(8,22,28,.6);display:flex;align-items:flex-end;justify-content:center}
+.modal{width:min(520px,100%);max-height:92dvh;overflow:auto;background:var(--surface);border:2.5px solid var(--edge);border-bottom:0;border-radius:28px 28px 0 0;padding:22px 20px calc(22px + env(safe-area-inset-bottom,0px));animation:sheet .22s ease-out}
+@keyframes sheet{from{transform:translateY(40px);opacity:0}}
+@media (min-width:600px){.modal-wrap{align-items:center}.modal{border-bottom:2.5px solid var(--edge);border-radius:28px;padding-bottom:22px;box-shadow:0 8px 0 var(--edge)}}
+.modal h2{margin:0 0 12px;font-size:24px}
+.field{margin-bottom:14px}
+.field label{display:block;font-weight:700;font-size:14px;margin-bottom:5px}
+.field input,.field select,textarea{width:100%;padding:12px 14px;border:2px solid var(--line);border-radius:12px;background:var(--surface2);color:var(--ink);font:500 16px var(--font-b)}
+textarea{min-height:150px;font:13px/1.4 ui-monospace,Menlo,Consolas,monospace;resize:vertical}
+.field input:focus,.field select:focus,textarea:focus{outline:3px solid var(--sky);outline-offset:1px;border-color:var(--sky)}
+.field small{display:block;margin-top:4px}
+.err{color:var(--red);font-weight:600;min-height:1.4em;margin:0}
+.check{display:flex;gap:10px;align-items:center;margin:4px 0 16px;font-weight:600}
+.check input{width:22px;height:22px;accent-color:var(--green)}
+.feed-list{display:grid;gap:8px}
+.feed-item{display:flex;align-items:center;gap:12px;text-align:left;background:var(--surface2);border:2px solid var(--line);border-radius:14px;padding:10px 12px}
+.feed-item .fe{font-size:30px}
+.feed-item small{display:block}
+.feed-item em{font:600 15px var(--font-d);font-style:normal}
+.set-prev{width:120px;margin:0 auto 12px;border-radius:18px;overflow:hidden;border:2.5px solid var(--edge);aspect-ratio:1;background:var(--surface2)}
+.set-prev svg{display:block;width:100%;height:100%}
+
+/* onboarding */
+.onboard{position:fixed;inset:0;z-index:80;overflow:auto;background-color:var(--bg);background-image:radial-gradient(var(--bg2) 1.6px,transparent 1.6px);background-size:24px 24px;padding:calc(20px + env(safe-area-inset-top,0px)) 16px calc(30px + env(safe-area-inset-bottom,0px))}
+.ob-card{max-width:460px;margin:0 auto}
+.ob-title{font-size:38px;line-height:1;text-align:center}
+.ob-sub{text-align:center;color:var(--ink2);margin:10px 0 16px}
+.ob-preview{width:210px;margin:0 auto 14px;border:2.5px solid var(--edge);border-radius:26px;overflow:hidden;box-shadow:0 6px 0 var(--edge);aspect-ratio:5/6;background:var(--surface2)}
+.ob-preview svg{display:block;width:100%;height:100%}
+.ob-chips{display:grid;gap:8px;margin-bottom:16px}
+.ob-chips .lbl{font-weight:700;font-size:14px;margin-bottom:-2px}
+
+/* toast */
+.toast{position:fixed;left:50%;bottom:calc(92px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);opacity:0;pointer-events:none;z-index:95;display:flex;align-items:center;gap:8px;max-width:min(92vw,460px);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:99px;font-weight:700;font-size:15px;transition:.25s;box-shadow:0 4px 0 rgba(0,0,0,.25)}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+@media (min-width:960px){.toast{bottom:30px}}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+}
+</style>
+</head>
+<body data-tab="home">
+<div class="app" id="app"></div>
+
+<script>
+'use strict';
+/* =====================================================================
+   My Little Finance Bro
+   ===================================================================== */
+
+/* ---------- utils ---------- */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const uid = () => Math.random().toString(36).slice(2, 10);
+const clamp = (n, a, b) => Math.min(b, Math.max(a, n));
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const sum = a => a.reduce((x, y) => x + y, 0);
+const money = n => {
+  n = Math.round(n * 100) / 100;
+  return (n < 0 ? '-' : '') + '$' + Math.abs(n).toLocaleString('en-US', { minimumFractionDigits: Number.isInteger(n) ? 0 : 2, maximumFractionDigits: 2 });
+};
+const pad = n => String(n).padStart(2, '0');
+const ymd = (d = new Date()) => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+const addDays = (d, n) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
+const curMonth = () => ymd().slice(0, 7);
+const shiftMonth = (mk, dlt) => { const [y, m] = mk.split('-').map(Number); const d = new Date(y, m - 1 + dlt, 1); return d.getFullYear() + '-' + pad(d.getMonth() + 1); };
+const monthLabel = mk => { const [y, m] = mk.split('-').map(Number); return new Date(y, m - 1, 1).toLocaleString('en-US', { month: 'long', year: 'numeric' }); };
+const daysInMonth = () => { const n = new Date(); return new Date(n.getFullYear(), n.getMonth() + 1, 0).getDate(); };
+const dayFrac = () => new Date().getDate() / daysInMonth();
+const parseAmt = v => { const n = parseFloat(String(v).replace(/[$,\s]/g, '')); return isFinite(n) ? n : NaN; };
+const shortDate = s => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }); };
+const isDate = s => /^\d{4}-\d{2}-\d{2}$/.test(s) && !isNaN(new Date(s + 'T00:00:00'));
+const pick1 = a => a[Math.floor(Math.random() * a.length)];
+const RM = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+const DAILY_CAP = 400;
+
+/* ---------- catalog ---------- */
+const SKINS = ['#F7D6B9', '#EBB98E', '#CB8E60', '#9A6240', '#65402C'];
+const HAIRS = ['#2A1F18', '#6A4425', '#C9A24B', '#B4432A', '#8D949C'];
+const HAIR_STYLES = ['Slick', 'Curly', 'Buzz', 'Bald'];
+const INK = '#1E2A32';
+
+const ITEMS = [
+  { id: 'beanie', slot: 'hat', name: 'Winter Beanie', price: 30 },
+  { id: 'cap', slot: 'hat', name: 'Backwards Cap', price: 40 },
+  { id: 'party', slot: 'hat', name: 'Deal Closer Hat', price: 60 },
+  { id: 'cowboy', slot: 'hat', name: 'Wall St. Cowboy', price: 100 },
+  { id: 'tophat', slot: 'hat', name: 'Top Hat', price: 150 },
+  { id: 'horns', slot: 'hat', name: 'Bull Market Horns', price: 220 },
+  { id: 'crown', slot: 'hat', name: 'Rich Uncle Crown', price: 500 },
+  { id: 'nerd', slot: 'eyes', name: 'Spreadsheet Specs', price: 50 },
+  { id: 'avi', slot: 'eyes', name: 'Aviators', price: 70 },
+  { id: 'sun', slot: 'eyes', name: 'Deal Shades', price: 90 },
+  { id: 'heart', slot: 'eyes', name: 'Heart Shades', price: 110 },
+  { id: 'mono', slot: 'eyes', name: 'Monocle', price: 260 },
+  { id: 'tee', slot: 'top', name: 'Plain Tee', price: 0 },
+  { id: 'polo', slot: 'top', name: 'Pink Polo', price: 60 },
+  { id: 'hoodie', slot: 'top', name: 'Hoodie', price: 90 },
+  { id: 'hawaii', slot: 'top', name: 'Friday Hawaiian', price: 120 },
+  { id: 'stonks', slot: 'top', name: 'Stonks Tee', price: 150 },
+  { id: 'vest', slot: 'top', name: 'Puffer Vest', price: 200 },
+  { id: 'diamond', slot: 'top', name: 'Diamond Hands Tee', price: 250 },
+  { id: 'suit', slot: 'top', name: 'Power Suit', price: 350 },
+  { id: 'gold', slot: 'top', name: 'Winner Jacket', price: 600 },
+  { id: 'scarf', slot: 'neck', name: 'Cozy Scarf', price: 50 },
+  { id: 'tie', slot: 'neck', name: 'Power Tie', price: 60 },
+  { id: 'bow', slot: 'neck', name: 'Bow Tie', price: 70 },
+  { id: 'medal', slot: 'neck', name: 'Employee of the Month', price: 180 },
+  { id: 'chain', slot: 'neck', name: 'Gold Chain', price: 300 },
+  { id: 'office', slot: 'bg', name: 'Corner Office', price: 0 },
+  { id: 'beach', slot: 'bg', name: 'Beach Day', price: 80 },
+  { id: 'floor', slot: 'bg', name: 'Trading Floor', price: 120 },
+  { id: 'yacht', slot: 'bg', name: 'Yacht Deck', price: 300 },
+  { id: 'pent', slot: 'bg', name: 'Penthouse', price: 450 },
+  { id: 'moon', slot: 'bg', name: 'To the Moon', price: 700 },
+  { id: 'coffee', slot: 'snack', name: 'Cold Brew', price: 5, fed: 10, fun: 10, emoji: '☕' },
+  { id: 'shake', slot: 'snack', name: 'Protein Shake', price: 8, fed: 25, fun: 5, emoji: '🥤' },
+  { id: 'toast', slot: 'snack', name: 'Avocado Toast', price: 12, fed: 20, fun: 20, emoji: '🥑' },
+  { id: 'steak', slot: 'snack', name: 'Steak Dinner', price: 25, fed: 50, fun: 15, emoji: '🥩' },
+  { id: 'champ', slot: 'snack', name: 'Bottle Service', price: 40, fed: 5, fun: 45, emoji: '🍾' }
+];
+const ITEM = Object.fromEntries(ITEMS.map(i => [i.id, i]));
+const SLOTS = [['hat', 'Hats'], ['eyes', 'Shades'], ['top', 'Tops'], ['neck', 'Neckwear'], ['bg', 'Scenes'], ['snack', 'Snacks']];
+const tierOf = p => p === 0 ? ['Starter', 'common'] : p < 80 ? ['Common', 'common'] : p < 200 ? ['Rare', 'rare'] : p < 400 ? ['Epic', 'epic'] : ['Legendary', 'legendary'];
+
+const CAT_EMOJI = ['🏠', '🛒', '🚗', '💡', '🍔', '☕', '🎉', '🛍️', '📺', '✈️', '💊', '🐶', '🎓', '💪', '🎁', '👶', '📱', '🧾'];
+const GOAL_EMOJI = ['🛟', '🏖️', '🚗', '🏠', '💍', '🎓', '💻', '🎸', '✈️', '🎯', '👶', '📈'];
+const ACCOUNTS = ['Brokerage', 'Roth IRA', 'Traditional IRA', '401(k) / 403(b)', 'HSA', 'Crypto', 'Other'];
+const AUTO = [['🏠', 'Housing', .28], ['🛒', 'Groceries', .10], ['🚗', 'Transport', .06], ['💡', 'Bills & phone', .06], ['🍔', 'Dining out', .07], ['🎉', 'Fun', .07], ['🛍️', 'Shopping', .06], ['📺', 'Subscriptions', .03], ['✈️', 'Travel', .03], ['💊', 'Health & self-care', .04]];
+const TIPS = [
+  'Time in the market beats timing the market. Nobody rings a bell at the bottom.',
+  'One stock is a bet. A broad, low-cost index fund is a strategy.',
+  'Fees compound too. A 1% annual fee quietly eats a big chunk of long-term returns.',
+  'Credit card interest of 20%+ beats almost any investment return. Pay it off first.',
+  'Money you need within about five years shouldn’t ride the stock market.',
+  'An employer 401(k) match is an instant, guaranteed return. Grab all of it.',
+  'Automate it. The version of you that forgets can’t skip a transfer.',
+  'Rebalance once or twice a year. Reacting to headlines is not a strategy.',
+  'Your emergency fund is what lets you stay invested when life gets messy.'
+];
+const TITLES = ['Intern', 'Analyst', 'Associate', 'Vice President', 'Director', 'Managing Director', 'Partner', 'Legend'];
+
+/* ---------- state ---------- */
+const KEY = 'my-little-finance-bro:v1';
+const defaults = () => ({
+  v: 1, onboarded: false, name: 'Chad', income: 0, skin: 1, hair: 0, hc: 0,
+  eq: { hat: null, eyes: null, top: 'tee', neck: null, bg: 'office' },
+  owned: ['tee', 'office'], inv: {},
+  coins: 50, xp: 0, lifetime: 0, fed: 80, fun: 80, lastTick: Date.now(),
+  budgets: [], txns: [], goals: [], deposits: [], investments: [],
+  claimed: {}, streak: { last: null, count: 0 }, daily: { date: '', earned: 0 },
+  market: null, advIdx: 0
+});
+function load() {
+  try {
+    const raw = localStorage.getItem(KEY);
+    if (raw) { const o = JSON.parse(raw); const d = defaults(); return Object.assign(d, o, { eq: Object.assign(d.eq, o.eq || {}) }); }
+  } catch (e) { /* storage unavailable */ }
+  return defaults();
+}
+function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { /* ignore */ } }
+let S = load();
+
+/* ephemeral UI state */
+let TAB = 'home', GT = 'save', SL = 'hat', VM = curMonth(), PV = null, MOOD = null, moodT = null, BUBBLE = '', CONFIRM = null, lastFocus = null;
+let CALC = { m: 200, y: 30, r: 7 };
+
+/* ---------- derived numbers ---------- */
+const inMonth = (rec, mk) => rec.date.startsWith(mk);
+const goalSaved = g => sum(S.deposits.filter(d => d.goalId === g.id).map(d => d.amount));
+
+function mstats(mk = curMonth()) {
+  const tx = S.txns.filter(t => inMonth(t, mk));
+  const exp = tx.filter(t => t.type === 'expense');
+  const spent = sum(exp.map(t => t.amount));
+  const extra = sum(tx.filter(t => t.type === 'income').map(t => t.amount));
+  const saved = sum(S.deposits.filter(d => inMonth(d, mk)).map(d => d.amount));
+  const invested = sum(S.investments.filter(d => inMonth(d, mk)).map(d => d.amount));
+  const budgeted = sum(S.budgets.map(b => b.limit));
+  const by = {}; S.budgets.forEach(b => { by[b.id] = 0; });
+  let uncat = 0;
+  exp.forEach(t => { if (Object.prototype.hasOwnProperty.call(by, t.budgetId)) by[t.budgetId] += t.amount; else uncat += t.amount; });
+  const budSpent = sum(Object.values(by));
+  const income = S.income + extra;
+  return { tx, exp, spent, extra, saved, invested, budgeted, by, uncat, budSpent, income, left: income - spent - saved - invested, count: exp.length };
+}
+function walletHealth() {
+  if (!S.budgets.length) return 60;
+  const m = mstats(), f = dayFrac();
+  const u = m.budgeted ? m.budSpent / m.budgeted : 0;
+  const over = S.budgets.filter(b => m.by[b.id] > b.limit).length;
+  return Math.round(clamp(100 - Math.max(0, u - f) * 160 - over * 10 - (u > 1 ? 20 : 0), 5, 100));
+}
+function moodKey() {
+  if (MOOD) return MOOD;
+  const w = walletHealth();
+  const sc = .3 * S.fed + .3 * S.fun + .4 * w;
+  if (S.budgets.length && w < 35) return 'stress';
+  if (sc >= 85) return 'great';
+  if (sc >= 65) return 'happy';
+  if (sc >= 45) return 'ok';
+  if (sc >= 28) return 'sad';
+  return 'stress';
+}
+const lvl = xp => 1 + Math.floor(Math.sqrt(xp / 40));
+const lvlStart = l => 40 * (l - 1) * (l - 1);
+function levelInfo() {
+  const l = lvl(S.xp), a = lvlStart(l), b = lvlStart(l + 1);
+  return { l, title: TITLES[Math.min(l - 1, TITLES.length - 1)], pct: Math.round((S.xp - a) / (b - a) * 100), to: Math.ceil(b - S.xp) };
+}
+function streakNow() {
+  const t = ymd(), y = ymd(addDays(new Date(), -1));
+  return (S.streak.last === t || S.streak.last === y) ? S.streak.count : 0;
+}
+function tickNeeds() {
+  const now = Date.now(), h = Math.max(0, (now - S.lastTick) / 3.6e6);
+  if (h > 0) { S.fed = Math.max(8, S.fed - 4 * h); S.fun = Math.max(8, S.fun - 3 * h); S.lastTick = now; }
+}
+function efTarget() {
+  const m = mstats();
+  const base = m.budgeted > 0 ? m.budgeted : (S.income ? S.income * .7 : 0);
+  return base ? Math.round(base * 3 / 100) * 100 : 1000;
+}
+
+/* =====================================================================
+   THE BRO (SVG)
+   ===================================================================== */
+let svgN = 0;
+const currentEq = () => PV && PV.slot !== 'snack' ? Object.assign({}, S.eq, { [PV.slot]: PV.id }) : S.eq;
+
+function hairSVG(style, c) {
+  if (style === 3) return '<path d="M72 46 Q84 38 98 38" stroke="rgba(255,255,255,.55)" stroke-width="4" fill="none" stroke-linecap="round"/>';
+  if (style === 0) return `<path d="M53 76 C46 36 82 20 112 24 C146 28 154 54 147 78 C141 58 126 47 100 47 C77 47 61 58 53 76 Z" fill="${c}" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/><path d="M74 40 C88 32 108 32 122 38" stroke="rgba(255,255,255,.35)" stroke-width="4" fill="none" stroke-linecap="round"/>`;
+  if (style === 2) return `<path d="M55 74 C50 42 80 33 100 33 C120 33 150 42 145 74 C138 60 122 54 100 54 C78 54 62 60 55 74Z" fill="${c}" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/>`;
+  const cs = [[58, 58, 15], [70, 44, 16], [88, 36, 17], [110, 35, 17], [130, 42, 16], [142, 56, 15], [100, 48, 15]];
+  return cs.map(([x, y, r]) => `<circle cx="${x}" cy="${y}" r="${r + 1.6}" fill="${INK}"/>`).join('') + cs.map(([x, y, r]) => `<circle cx="${x}" cy="${y}" r="${r}" fill="${c}"/>`).join('');
+}
+function faceSVG(mood) {
+  const dot = x => `<g class="eye"><ellipse cx="${x}" cy="84" rx="6" ry="8" fill="${INK}"/><circle cx="${x + 2}" cy="81" r="2.4" fill="#fff"/></g>`;
+  const arc = x => `<path d="M${x - 8} 87 Q${x} 76 ${x + 8} 87" stroke="${INK}" stroke-width="4" fill="none" stroke-linecap="round"/>`;
+  const st = `stroke="${INK}" stroke-width="4" fill="none" stroke-linecap="round"`;
+  let eyes = dot(80) + dot(120), brows = '', mouth = '', extra = '';
+  switch (mood) {
+    case 'great':
+      eyes = arc(80) + arc(120);
+      mouth = `<path d="M82 100 Q100 124 118 100 Z" fill="#7A2436" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/><path d="M90 108 Q100 116 110 108 Q100 104 90 108Z" fill="#FF7E8F"/>`; break;
+    case 'happy': mouth = `<path d="M86 102 Q100 116 114 102" ${st}/>`; break;
+    case 'ok': mouth = `<path d="M90 107 L110 107" ${st}/>`; break;
+    case 'sad':
+      brows = `<path d="M70 70 L89 75 M130 70 L111 75" ${st}/>`;
+      mouth = `<path d="M88 111 Q100 100 112 111" ${st}/>`; break;
+    case 'stress':
+      brows = `<path d="M70 74 L89 69 M130 74 L111 69" ${st}/>`;
+      mouth = `<path d="M86 108 q5 -6 9 0 t9 0 t9 0" ${st}/>`;
+      extra = '<path d="M150 62 q7 10 0 15 q-7 -5 0 -15z" fill="#7FD3F5" stroke="#1E2A32" stroke-width="2"/>'; break;
+    case 'eat':
+      eyes = arc(80) + arc(120);
+      mouth = `<ellipse class="chew" cx="100" cy="106" rx="9" ry="7" fill="#7A2436" stroke="${INK}" stroke-width="3"/>`; break;
+    case 'wow':
+      mouth = `<ellipse cx="100" cy="108" rx="6" ry="8" fill="#7A2436" stroke="${INK}" stroke-width="3"/>`; break;
+  }
+  return `<circle cx="68" cy="98" r="6" fill="#FF6B8B" opacity=".35"/><circle cx="132" cy="98" r="6" fill="#FF6B8B" opacity=".35"/>${eyes}${brows}${mouth}${extra}`;
+}
+
+const HATS = {
+  cap: () => `<path d="M52 62 C50 22 150 22 148 62 Q100 50 52 62Z" fill="#E5484D" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/><circle cx="100" cy="27" r="4" fill="#B93338" stroke="${INK}" stroke-width="2"/><rect x="88" y="54" width="24" height="8" rx="3" fill="#C63B40" stroke="${INK}" stroke-width="2"/>`,
+  beanie: () => `<path d="M52 60 C48 14 152 14 148 60Z" fill="#4DBBEA" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/><rect x="48" y="50" width="104" height="16" rx="8" fill="#2E9CCB" stroke="${INK}" stroke-width="3"/><circle cx="100" cy="17" r="9" fill="#fff" stroke="${INK}" stroke-width="3"/>`,
+  tophat: () => `<ellipse cx="100" cy="52" rx="60" ry="10" fill="#1B1F26" stroke="${INK}" stroke-width="3"/><rect x="68" y="6" width="64" height="46" rx="5" fill="#1B1F26" stroke="${INK}" stroke-width="3"/><rect x="68" y="36" width="64" height="10" fill="#E5484D"/><path d="M76 12 V32" stroke="rgba(255,255,255,.25)" stroke-width="4" stroke-linecap="round"/>`,
+  crown: () => `<path d="M58 54 L58 22 L79 40 L100 14 L121 40 L142 22 L142 54 Z" fill="#F5B71C" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/><circle cx="100" cy="36" r="5" fill="#E5484D" stroke="${INK}" stroke-width="2"/><circle cx="76" cy="47" r="3.5" fill="#4DBBEA" stroke="${INK}" stroke-width="2"/><circle cx="124" cy="47" r="3.5" fill="#4DBBEA" stroke="${INK}" stroke-width="2"/><circle cx="58" cy="20" r="4" fill="#F5B71C" stroke="${INK}" stroke-width="2"/><circle cx="100" cy="12" r="4" fill="#F5B71C" stroke="${INK}" stroke-width="2"/><circle cx="142" cy="20" r="4" fill="#F5B71C" stroke="${INK}" stroke-width="2"/>`,
+  cowboy: () => `<path d="M64 52 C62 16 138 16 136 52Z" fill="#C98A4B" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/><path d="M36 58 Q100 78 164 58 Q150 48 132 50 L68 50 Q50 48 36 58Z" fill="#B7793F" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/><path d="M65 44 Q100 50 135 44 L135 50 Q100 56 65 50Z" fill="#6B3E1E"/>`,
+  horns: () => `<path d="M54 60 Q100 40 146 60" stroke="#E5484D" stroke-width="8" fill="none" stroke-linecap="round"/><path d="M58 56 C40 54 34 34 40 20 C46 34 58 40 70 44Z" fill="#F4EBD0" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/><path d="M142 56 C160 54 166 34 160 20 C154 34 142 40 130 44Z" fill="#F4EBD0" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/>`,
+  party: () => `<path d="M74 54 L100 4 L126 54Z" fill="#B57BFF" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/><path d="M86 34 L114 34 M79 46 L121 46" stroke="#FFD84D" stroke-width="4" stroke-linecap="round"/><circle cx="100" cy="6" r="6" fill="#FFD84D" stroke="${INK}" stroke-width="2"/>`
+};
+const EYES = {
+  nerd: () => `<circle cx="80" cy="84" r="14" fill="rgba(200,230,255,.3)" stroke="${INK}" stroke-width="4"/><circle cx="120" cy="84" r="14" fill="rgba(200,230,255,.3)" stroke="${INK}" stroke-width="4"/><path d="M94 82 Q100 77 106 82 M66 82 L52 78 M134 82 L148 78" stroke="${INK}" stroke-width="4" fill="none" stroke-linecap="round"/>`,
+  avi: () => `<path d="M63 77 H97 Q97 101 80 101 Q63 101 63 77Z" fill="rgba(20,30,40,.8)" stroke="#F5B71C" stroke-width="3" stroke-linejoin="round"/><path d="M103 77 H137 Q137 101 120 101 Q103 101 103 77Z" fill="rgba(20,30,40,.8)" stroke="#F5B71C" stroke-width="3" stroke-linejoin="round"/><path d="M97 80 Q100 77 103 80 M63 79 L52 76 M137 79 L148 76" stroke="#F5B71C" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M70 82 L76 82 M110 82 L116 82" stroke="rgba(255,255,255,.5)" stroke-width="3" stroke-linecap="round"/>`,
+  sun: () => `<path d="M64 76 H96 V88 Q96 98 86 98 H74 Q64 98 64 88Z" fill="#141A1F" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/><path d="M104 76 H136 V88 Q136 98 126 98 H114 Q104 98 104 88Z" fill="#141A1F" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/><path d="M96 79 H104 M64 78 L52 75 M136 78 L148 75" stroke="${INK}" stroke-width="4" stroke-linecap="round"/><path d="M70 82 L78 82 M110 82 L118 82" stroke="rgba(255,255,255,.35)" stroke-width="3" stroke-linecap="round"/>`,
+  heart: () => [80, 120].map(x => `<path d="M${x} 100 C${x - 16} 88 ${x - 16} 74 ${x - 8} 74 C${x - 3} 74 ${x} 77 ${x} 80 C${x} 77 ${x + 3} 74 ${x + 8} 74 C${x + 16} 74 ${x + 16} 88 ${x} 100Z" fill="#FF4D7D" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/>`).join('') + `<path d="M96 80 H104 M66 80 L52 76 M134 80 L148 76" stroke="${INK}" stroke-width="3" stroke-linecap="round"/>`,
+  mono: () => `<circle cx="120" cy="84" r="15" fill="rgba(255,255,255,.22)" stroke="#F5B71C" stroke-width="3.5"/><path d="M131 96 Q144 118 138 146" stroke="#F5B71C" stroke-width="2.5" fill="none" stroke-linecap="round"/>`
+};
+const NECKS = {
+  tie: () => `<path d="M93 128 H107 L104 138 H96Z" fill="#E5484D" stroke="${INK}" stroke-width="2.5" stroke-linejoin="round"/><path d="M96 138 H104 L110 172 L100 182 L90 172Z" fill="#E5484D" stroke="${INK}" stroke-width="2.5" stroke-linejoin="round"/><path d="M96 150 L104 156 M95 162 L105 168" stroke="rgba(255,255,255,.4)" stroke-width="3" stroke-linecap="round"/>`,
+  bow: () => `<path d="M100 138 L80 128 V148Z M100 138 L120 128 V148Z" fill="#B57BFF" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/><circle cx="100" cy="138" r="5.5" fill="#8A54D9" stroke="${INK}" stroke-width="2.5"/>`,
+  chain: () => `<path d="M76 126 Q100 160 124 126" stroke="${INK}" stroke-width="8" fill="none" stroke-linecap="round"/><path d="M76 126 Q100 160 124 126" stroke="#F5B71C" stroke-width="4.5" fill="none" stroke-linecap="round"/><circle cx="100" cy="148" r="10" fill="#F5B71C" stroke="${INK}" stroke-width="2.5"/><text x="100" y="153" font-size="13" font-weight="700" text-anchor="middle" fill="#7A5300" font-family="Fredoka,sans-serif">$</text>`,
+  scarf: () => `<path d="M66 126 Q100 150 134 126 L136 140 Q100 164 64 140Z" fill="#FF6B8B" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/><path d="M112 148 L126 182 L108 180 L100 152Z" fill="#FF6B8B" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/><path d="M116 164 L104 162" stroke="rgba(255,255,255,.5)" stroke-width="3" stroke-linecap="round"/>`,
+  medal: () => `<path d="M88 126 L100 148 L112 126 L104 126 L100 136 L96 126Z" fill="#4DBBEA" stroke="${INK}" stroke-width="2.5" stroke-linejoin="round"/><circle cx="100" cy="158" r="11" fill="#F5B71C" stroke="${INK}" stroke-width="3"/><text x="100" y="163" font-size="13" text-anchor="middle" fill="#7A5300">★</text>`
+};
+const TOPS = {
+  tee: { color: '#F4F7F8', sleeve: 'short', detail: () => `<path d="M88 122 Q100 134 112 122" stroke="${INK}" stroke-width="3" fill="none"/>` },
+  polo: { color: '#FF8FAB', sleeve: 'short', detail: () => `<path d="M84 122 L100 140 L92 120Z M116 122 L100 140 L108 120Z" fill="#FF6F91" stroke="${INK}" stroke-width="2.5" stroke-linejoin="round"/><path d="M100 140 V164" stroke="${INK}" stroke-width="2.5"/><circle cx="100" cy="148" r="2.2" fill="${INK}"/><circle cx="100" cy="157" r="2.2" fill="${INK}"/>` },
+  hoodie: { color: '#8FA0AE', sleeve: 'long', detail: () => `<path d="M72 122 Q100 148 128 122" fill="none" stroke="#6F8090" stroke-width="10" stroke-linecap="round"/><path d="M93 138 v20 M107 138 v20" stroke="#fff" stroke-width="3" stroke-linecap="round"/><path d="M76 170 Q100 158 124 170 L122 192 H78Z" fill="#7E909E" stroke="${INK}" stroke-width="2.5"/>` },
+  hawaii: { color: '#1FB5A8', sleeve: 'short', detail: () => `<path d="M84 122 L100 138 L92 120Z M116 122 L100 138 L108 120Z" fill="#19968B" stroke="${INK}" stroke-width="2.5" stroke-linejoin="round"/><g fill="#FF6B8B"><circle cx="76" cy="152" r="7"/><circle cx="124" cy="166" r="7"/><circle cx="92" cy="180" r="6"/><circle cx="118" cy="142" r="5"/></g><g fill="#F5B71C"><circle cx="76" cy="152" r="2.5"/><circle cx="124" cy="166" r="2.5"/><circle cx="92" cy="180" r="2.2"/><circle cx="118" cy="142" r="2"/></g>` },
+  stonks: { color: '#22323C', sleeve: 'short', detail: () => `<polyline points="72,178 86,166 96,172 112,152 126,142" fill="none" stroke="#3DD68C" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><path d="M118 138 L132 136 L128 150Z" fill="#3DD68C"/>` },
+  vest: { color: '#2F4B7C', sleeve: 'long', sc: '#BFD7EA', detail: () => `<path d="M60 148 H140 M60 168 H140" stroke="rgba(255,255,255,.2)" stroke-width="2"/><path d="M100 128 V192" stroke="#C7D3E6" stroke-width="3"/><path d="M86 122 L100 136 L114 122" fill="#BFD7EA" stroke="${INK}" stroke-width="2.5" stroke-linejoin="round"/><circle cx="120" cy="142" r="4.5" fill="#F5B71C"/>` },
+  diamond: { color: '#3B82D9', sleeve: 'short', detail: () => `<text x="100" y="172" font-size="32" text-anchor="middle">💎</text>` },
+  suit: { color: '#2B3444', sleeve: 'long', detail: () => `<path d="M86 122 L100 166 L114 122Z" fill="#fff" stroke="${INK}" stroke-width="2.5" stroke-linejoin="round"/><path d="M84 122 L96 170 L78 150Z M116 122 L104 170 L122 150Z" fill="#3A4560" stroke="${INK}" stroke-width="2.5" stroke-linejoin="round"/><circle cx="100" cy="178" r="2.6" fill="#9AA6BD"/><path d="M118 156 l9 -3 v9 h-9z" fill="#FF6B8B"/>` },
+  gold: { color: '#E8B93A', sleeve: 'long', detail: () => `<path d="M80 124 V192 M120 124 V192" stroke="#FFF1B8" stroke-width="3" opacity=".85"/><path d="M84 122 L100 140 L116 122" fill="#D4A22A" stroke="${INK}" stroke-width="2.5" stroke-linejoin="round"/><path d="M66 140 L74 132" stroke="#fff" stroke-width="4" stroke-linecap="round" opacity=".6"/>` }
+};
+const STARS = [[20, 20], [46, 44], [70, 16], [96, 36], [120, 12], [170, 22], [186, 54], [30, 80], [150, 70], [110, 60], [12, 120], [180, 100]];
+const BGS = {
+  office: () => `<rect width="200" height="240" fill="#D3E4EC"/><rect y="196" width="200" height="44" fill="#A7BDC8"/><path d="M0 196 H200" stroke="#8FA7B3" stroke-width="3"/><rect x="118" y="26" width="64" height="86" rx="4" fill="#9ED8F5" stroke="#7F98A6" stroke-width="4"/><rect x="124" y="82" width="12" height="30" fill="#6FA9C9"/><rect x="140" y="66" width="14" height="46" fill="#5B97B9"/><rect x="158" y="88" width="18" height="24" fill="#6FA9C9"/><path d="M150 26 V112 M118 69 H182" stroke="#7F98A6" stroke-width="3"/><rect x="16" y="38" width="72" height="50" rx="3" fill="#fff" stroke="#7F98A6" stroke-width="3"/><polyline points="24,78 40,64 52,70 66,52 80,46" fill="none" stroke="#12A05F" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><rect x="8" y="172" width="18" height="24" rx="2" fill="#C77B4A"/><ellipse cx="17" cy="162" rx="14" ry="12" fill="#2E9E5B"/><ellipse cx="10" cy="152" rx="7" ry="10" fill="#37B56A"/>`,
+  beach: s => `<defs><linearGradient id="${s}a" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8FDCF7"/><stop offset="1" stop-color="#E4F7FB"/></linearGradient></defs><rect width="200" height="240" fill="url(#${s}a)"/><circle cx="160" cy="44" r="18" fill="#FFD84D"/><rect y="118" width="200" height="72" fill="#3AB6D8"/><path d="M0 132 q10 -5 20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0" stroke="#8FE0F2" stroke-width="3" fill="none"/><path d="M0 154 q10 -5 20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0" stroke="#6CCBE6" stroke-width="3" fill="none"/><path d="M0 188 Q100 176 200 188 V240 H0Z" fill="#F3D9A0"/><path d="M22 200 Q30 150 40 110" stroke="#8A5A2B" stroke-width="8" fill="none" stroke-linecap="round"/><path d="M40 110 Q16 96 6 114 Q24 104 40 114Z M40 110 Q60 92 80 106 Q58 100 40 114Z M40 110 Q30 86 14 84 Q34 94 40 112Z M40 110 Q52 84 64 74 Q54 96 40 112Z" fill="#2E9E5B"/>`,
+  yacht: s => `<defs><linearGradient id="${s}a" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#A9E0F5"/><stop offset="1" stop-color="#E9F8FC"/></linearGradient></defs><rect width="200" height="240" fill="url(#${s}a)"/><circle cx="40" cy="40" r="16" fill="#FFE27A"/><rect y="112" width="200" height="90" fill="#2A8FBF"/><path d="M0 128 q10 -5 20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0" stroke="#6CC0E6" stroke-width="3" fill="none"/><path d="M140 110 h34 l-7 9 h-20z" fill="#fff" stroke="#7F98A6" stroke-width="2"/><path d="M156 108 V78 L176 108Z" fill="#fff" stroke="#7F98A6" stroke-width="2"/><rect y="196" width="200" height="44" fill="#C89A63"/><path d="M0 210 H200 M0 224 H200" stroke="#A87C48" stroke-width="2"/><path d="M0 168 H200" stroke="#fff" stroke-width="5"/><path d="M12 168 V198 M56 168 V198 M100 168 V198 M144 168 V198 M188 168 V198" stroke="#fff" stroke-width="5"/>`,
+  pent: s => `<defs><linearGradient id="${s}a" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1B2445"/><stop offset="1" stop-color="#4A3A82"/></linearGradient></defs><rect width="200" height="240" fill="url(#${s}a)"/>` + STARS.map(([x, y]) => `<circle cx="${x}" cy="${y}" r="1.3" fill="#fff" opacity=".85"/>`).join('') + `<circle cx="152" cy="38" r="14" fill="#FFF6D0"/>` +
+    [[0, 26, 90], [24, 20, 110], [44, 30, 80], [74, 22, 120], [96, 26, 96], [122, 20, 130], [142, 28, 100], [170, 30, 116]].map(([x, w, h], i) => `<rect x="${x}" y="${196 - h}" width="${w}" height="${h}" fill="#141A38"/>` + Array.from({ length: Math.floor(h / 14) * Math.floor(w / 10) }, (_, k) => { const cols = Math.floor(w / 10), cx = k % cols, cy = Math.floor(k / cols); return (i * 7 + cx * 3 + cy * 5) % 3 === 0 ? `<rect x="${x + 3 + cx * 10}" y="${196 - h + 6 + cy * 14}" width="5" height="6" fill="#FFD84D" opacity=".85"/>` : ''; }).join('')).join('') +
+    `<path d="M66 0 V196 M134 0 V196" stroke="#4A548C" stroke-width="3"/><rect y="196" width="200" height="44" fill="#2A2F55"/><path d="M0 196 H200" stroke="#4A548C" stroke-width="3"/><path d="M20 210 H80" stroke="#3D4478" stroke-width="3" stroke-linecap="round"/>`,
+  floor: () => `<rect width="200" height="240" fill="#26343F"/><rect x="8" y="12" width="184" height="30" rx="4" fill="#0E161C" stroke="#4A5A66" stroke-width="3"/>` + Array.from({ length: 10 }, (_, i) => `<rect x="${14 + i * 18}" y="19" width="12" height="4" rx="1" fill="${i % 3 ? '#3DD68C' : '#FF5A5F'}"/><rect x="${14 + i * 18}" y="28" width="8" height="4" rx="1" fill="${i % 2 ? '#FF5A5F' : '#3DD68C'}"/>`).join('') +
+    `<rect x="12" y="54" width="80" height="62" rx="4" fill="#0E161C" stroke="#4A5A66" stroke-width="3"/><rect x="108" y="54" width="80" height="62" rx="4" fill="#0E161C" stroke="#4A5A66" stroke-width="3"/><polyline points="18,104 30,92 42,98 54,80 68,86 86,64" fill="none" stroke="#3DD68C" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><polyline points="114,66 128,78 140,72 154,96 168,90 182,106" fill="none" stroke="#FF5A5F" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><rect y="196" width="200" height="44" fill="#4D5B66"/><path d="M0 196 H200 M0 214 H200 M40 196 V240 M100 196 V240 M160 196 V240" stroke="#3E4A54" stroke-width="2"/>`,
+  moon: s => `<defs><linearGradient id="${s}a" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#080B1E"/><stop offset="1" stop-color="#26306A"/></linearGradient></defs><rect width="200" height="240" fill="url(#${s}a)"/>` + STARS.map(([x, y]) => `<circle cx="${x}" cy="${y + 10}" r="1.4" fill="#fff"/>`).join('') + `<circle cx="40" cy="62" r="22" fill="#3B82D9"/><path d="M28 54 q8 -8 16 -2 q6 8 -2 14 q-10 4 -14 -12z M46 72 q8 -2 10 6 q-4 6 -10 2z" fill="#3DBE7A"/><text x="150" y="80" font-size="28" transform="rotate(20 150 80)">🚀</text><path d="M0 192 Q50 180 100 190 T200 186 V240 H0Z" fill="#B9BFC9"/><ellipse cx="38" cy="214" rx="18" ry="5" fill="#9AA1AD"/><ellipse cx="162" cy="222" rx="22" ry="6" fill="#9AA1AD"/><ellipse cx="120" cy="204" rx="8" ry="2.5" fill="#9AA1AD"/>`
+};
+
+function broSVG(o = {}) {
+  const eq = o.eq || currentEq();
+  const skin = SKINS[o.skin != null ? o.skin : S.skin];
+  const hairC = HAIRS[o.hc != null ? o.hc : S.hc];
+  const hs = o.hair != null ? o.hair : S.hair;
+  const mood = o.mood || moodKey();
+  const s = 'g' + (++svgN);
+  const top = TOPS[eq.top] || TOPS.tee;
+  const sc = top.sc || top.color;
+  const arm = dir => {
+    const sx = 100 + dir * 36, sy = 140, hx = 100 + dir * 54, hy = 178;
+    const f = top.sleeve === 'long' ? .86 : .38;
+    const ex = sx + (hx - sx) * f, ey = sy + (hy - sy) * f;
+    const ln = (x, y, c, w) => `<line x1="${sx}" y1="${sy}" x2="${x}" y2="${y}" stroke="${c}" stroke-width="${w}" stroke-linecap="round"/>`;
+    return ln(hx, hy, INK, 20) + ln(hx, hy, skin, 13) + ln(ex, ey, INK, 20) + ln(ex, ey, sc, 13);
+  };
+  const hand = dir => `<circle cx="${100 + dir * 54}" cy="180" r="8.5" fill="${skin}" stroke="${INK}" stroke-width="3"/>`;
+  const bg = eq.bg && BGS[eq.bg] ? BGS[eq.bg](s) : '';
+  return `<svg viewBox="${o.vb || '0 0 200 240'}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${esc(o.label != null ? o.label : 'Your finance bro')}"><defs><clipPath id="${s}c"><rect x="60" y="122" width="80" height="70" rx="28"/></clipPath></defs>${bg}${bg ? '<ellipse cx="100" cy="230" rx="54" ry="7" fill="rgba(0,0,0,.2)"/>' : ''}<g class="bro">
+<rect x="78" y="200" width="16" height="16" rx="4" fill="${skin}" stroke="${INK}" stroke-width="3"/><rect x="106" y="200" width="16" height="16" rx="4" fill="${skin}" stroke="${INK}" stroke-width="3"/>
+<ellipse cx="84" cy="220" rx="17" ry="8" fill="#fff" stroke="${INK}" stroke-width="3"/><ellipse cx="116" cy="220" rx="17" ry="8" fill="#fff" stroke="${INK}" stroke-width="3"/>
+<rect x="68" y="184" width="64" height="24" rx="10" fill="#D8B98A" stroke="${INK}" stroke-width="3"/><path d="M100 192 V207" stroke="${INK}" stroke-width="3"/>
+${arm(-1)}${arm(1)}
+<rect x="60" y="122" width="80" height="70" rx="28" fill="${top.color}"/><g clip-path="url(#${s}c)">${top.detail()}</g><rect x="60" y="122" width="80" height="70" rx="28" fill="none" stroke="${INK}" stroke-width="3"/>
+${hand(-1)}${hand(1)}
+<circle cx="52" cy="84" r="9" fill="${skin}" stroke="${INK}" stroke-width="3"/><circle cx="148" cy="84" r="9" fill="${skin}" stroke="${INK}" stroke-width="3"/>
+<ellipse cx="100" cy="80" rx="48" ry="46" fill="${skin}" stroke="${INK}" stroke-width="3"/>
+${faceSVG(mood)}${hairSVG(hs, hairC)}
+${eq.neck && NECKS[eq.neck] ? NECKS[eq.neck]() : ''}${eq.hat && HATS[eq.hat] ? HATS[eq.hat]() : ''}${eq.eyes && EYES[eq.eyes] ? EYES[eq.eyes]() : ''}
+</g></svg>`;
+}
+const THUMB_VB = { hat: '40 0 120 120', eyes: '40 40 120 120', top: '40 90 120 120', neck: '40 90 120 120', bg: '0 20 200 200' };
+function thumbSVG(it) {
+  const eq = Object.assign({}, S.eq, { [it.slot]: it.id });
+  return broSVG({ eq, mood: 'happy', vb: THUMB_VB[it.slot], label: it.name });
+}
+
+/* =====================================================================
+   TOAST / BUBBLE / MOOD / EFFECTS
+   ===================================================================== */
+const coinIcon = (z = 20) => `<svg width="${z}" height="${z}" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10.5" fill="#F5B71C" stroke="#14303B" stroke-width="2"/><circle cx="12" cy="12" r="6.6" fill="none" stroke="#B9800A" stroke-width="1.5"/><text x="12" y="16" font-size="10" font-weight="700" text-anchor="middle" fill="#7A5300" font-family="Fredoka,sans-serif">$</text></svg>`;
+let toastT;
+function toast(msg, o = {}) {
+  let t = $('#toast');
+  if (!t) { t = document.createElement('div'); t.id = 'toast'; t.className = 'toast'; t.setAttribute('role', 'status'); document.body.appendChild(t); }
+  t.innerHTML = (o.coin ? coinIcon(20) : '') + '<span>' + esc(msg) + '</span>';
+  t.classList.add('show');
+  clearTimeout(toastT);
+  toastT = setTimeout(() => t.classList.remove('show'), 3400);
+  if (o.coin) burst('🪙', 8);
+}
+function burst(ch = '🪙', n = 10) {
+  if (RM) return;
+  const w = document.createElement('div'); w.className = 'burst';
+  for (let i = 0; i < n; i++) {
+    const s = document.createElement('span'); s.textContent = ch;
+    s.style.setProperty('--x', (Math.random() * 2 - 1) * 140 + 'px');
+    s.style.setProperty('--y', -(90 + Math.random() * 160) + 'px');
+    s.style.setProperty('--r', (Math.random() * 2 - 1) * 90 + 'deg');
+    s.style.left = (30 + Math.random() * 40) + '%';
+    s.style.animationDelay = Math.random() * .15 + 's';
+    w.appendChild(s);
+  }
+  document.body.appendChild(w);
+  setTimeout(() => w.remove(), 1500);
+}
+function say(text) {
+  BUBBLE = text;
+  const b = $('#bubble');
+  if (b) { b.textContent = text; b.classList.remove('pop'); void b.offsetWidth; b.classList.add('pop'); }
+}
+function refreshBro() { $$('[data-live-bro]').forEach(el => { el.innerHTML = broSVG(); }); }
+function setMood(k, ms = 1300) {
+  MOOD = k; refreshBro();
+  clearTimeout(moodT);
+  moodT = setTimeout(() => { MOOD = null; refreshBro(); }, ms);
+}
+function metersHTML() {
+  const w = walletHealth();
+  const rows = [['Full', S.fed, 'gold'], ['Fun', S.fun, 'pink'], ['Wallet', w, w < 40 ? 'red' : 'green']];
+  return rows.map(([l, v, c]) => `<div class="meter"><span>${l}</span><div class="bar ${c}" role="progressbar" aria-label="${l}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(v)}"><i style="width:${Math.round(v)}%"></i></div><b>${Math.round(v)}</b></div>`).join('');
+}
+function updateMeters() { const m = $('#meters'); if (m) m.innerHTML = metersHTML(); }
+
+/* =====================================================================
+   REWARDS
+   ===================================================================== */
+function checkIn() {
+  const t = ymd();
+  if (S.streak.last === t) return null;
+  const y = ymd(addDays(new Date(), -1));
+  S.streak.count = S.streak.last === y ? S.streak.count + 1 : 1;
+  S.streak.last = t;
+  return [3 + Math.min(S.streak.count, 7), S.streak.count > 1 ? S.streak.count + '-day streak' : 'daily check-in'];
+}
+function award(items, opt = {}) {
+  let total = sum(items.map(i => i[0]));
+  if (total <= 0) return 0;
+  const t = ymd();
+  if (S.daily.date !== t) S.daily = { date: t, earned: 0 };
+  let capped = false;
+  if (!opt.nocap) {
+    const room = Math.max(0, DAILY_CAP - S.daily.earned);
+    if (total > room) { total = room; capped = true; }
+    S.daily.earned += total;
+  }
+  const before = lvl(S.xp);
+  S.coins += total; S.xp += total; S.lifetime += total;
+  const after = lvl(S.xp);
+  if (total > 0) toast('+' + total + ' coins · ' + items.map(i => i[1]).join(', ') + (capped ? ' (daily cap hit)' : ''), { coin: true });
+  else toast('Daily coin cap reached (' + DAILY_CAP + '). Your bro respects discipline, not grinding.');
+  if (after > before) { const li = levelInfo(); setTimeout(() => { burst('⭐', 14); say('LEVEL UP. Lv ' + li.l + ', ' + li.title + '. Someone get me a vest.'); }, 500); }
+  return total;
+}
+function reverseReward(n) { if (n > 0) { S.coins = Math.max(0, S.coins - n); S.xp = Math.max(0, S.xp - n); S.lifetime = Math.max(0, S.lifetime - n); } }
+
+/* =====================================================================
+   QUESTS
+   ===================================================================== */
+const QUESTS = [
+  { id: 'budgets3', t: 'Build your budget', d: 'Create 3 budget categories', per: 'once', reward: 40, prog: () => [S.budgets.length, 3] },
+  { id: 'goal1', t: 'Set a goal', d: 'Create a savings goal', per: 'once', reward: 30, prog: () => [S.goals.length, 1] },
+  { id: 'log5', t: 'Receipts, bro', d: 'Log 5 expenses this month', per: 'month', reward: 25, prog: () => [mstats().count, 5] },
+  { id: 'save50', t: 'Pay yourself first', d: 'Save $50 this month', per: 'month', reward: 40, prog: () => [mstats().saved, 50], money: true },
+  { id: 'save500', t: 'Serious saver', d: 'Save $500 this month', per: 'month', reward: 150, prog: () => [mstats().saved, 500], money: true },
+  { id: 'inv1', t: 'Put money to work', d: 'Log an investment this month', per: 'month', reward: 60, prog: () => [S.investments.filter(i => inMonth(i, curMonth())).length, 1] },
+  { id: 'inv250', t: 'Compound interest enjoyer', d: 'Invest $250 this month', per: 'month', reward: 120, prog: () => [mstats().invested, 250], money: true },
+  { id: 'under', t: 'Under budget', d: 'On the 20th or later, be under your total budget (and budget within your income)', per: 'month', reward: 100,
+    prog: () => { const m = mstats(); const ok = S.budgets.length > 0 && new Date().getDate() >= 20 && m.budSpent <= m.budgeted && (!S.income || m.budgeted <= S.income); return [ok ? 1 : 0, 1]; } },
+  { id: 'goaldone', t: 'Goal getter', d: 'Fully fund any savings goal', per: 'once', reward: 120, prog: () => [S.goals.some(g => g.target > 0 && goalSaved(g) >= g.target) ? 1 : 0, 1] },
+  { id: 'streak7', t: 'Weekly warrior', d: 'Check in 7 days in a row', per: 'once', reward: 80, prog: () => [streakNow(), 7] },
+  { id: 'trade1', t: 'Paper hands', d: 'Make a practice trade', per: 'once', reward: 25, prog: () => [S.market && S.market.trades > 0 ? 1 : 0, 1] },
+  { id: 'div3', t: 'Don’t bet on one horse', d: 'Hold 3 different practice holdings at once', per: 'once', reward: 40, prog: () => [S.market ? Object.values(S.market.hold).filter(v => v > 0.0001).length : 0, 3] }
+];
+const qKey = q => q.per === 'month' ? q.id + ':' + curMonth() : q.id;
+const qState = q => { const [c, t] = q.prog(); return { c, t, ready: c >= t, claimed: !!S.claimed[qKey(q)] }; };
+const claimable = () => QUESTS.filter(q => { const s = qState(q); return s.ready && !s.claimed; }).length;
+
+/* =====================================================================
+   ADVICE ENGINE
+   ===================================================================== */
+function advice() {
+  const out = [];
+  const m = mstats(), inc = S.income, day = new Date().getDate(), f = dayFrac(), left = daysInMonth() - day;
+  const add = (p, tone, icon, title, body, sayIt, act) => out.push({ p, tone, icon, title, body, say: sayIt, act });
+  const nm = S.name;
+  if (!inc) add(1, 'info', '💼', 'Tell me your take-home pay', 'Every plan starts with one number: what lands in your account each month. Add it and I can size your budgets properly.', 'Give me your monthly income and I’ll build you a plan.', { label: 'Set income', a: 'settings' });
+  if (!S.budgets.length) add(2, 'info', '🧾', 'Give every dollar a job', 'No budgets yet. The 50/30/20 starter split takes one tap, and you can tweak every line afterwards.', 'No budgets yet?! Hit the starter split, bro.', { label: 'Build starter budget', a: 'autoBudget' });
+  else {
+    S.budgets.forEach(b => {
+      const s = m.by[b.id] || 0;
+      if (s > b.limit) add(0, 'warn', '🚨', b.name + ' is over by ' + money(s - b.limit), 'You planned ' + money(b.limit) + ' and spent ' + money(s) + '. Pull from a category with slack, or pause this one until next month.', b.name + ' blew past its limit. We need to talk.', { label: 'See budgets', a: 'tab', tab: 'budget' });
+      else if (b.limit > 0 && s / b.limit >= .85) add(3, 'caution', '⚠️', b.name + ' is at ' + Math.round(s / b.limit * 100) + '%', money(b.limit - s) + ' left with ' + left + ' days to go. Pace yourself.', b.name + ' is almost tapped out.', { label: 'Log spending', a: 'newTxn', b: b.id });
+    });
+    const u = m.budgeted ? m.budSpent / m.budgeted : 0;
+    const anyOver = S.budgets.some(b => (m.by[b.id] || 0) > b.limit);
+    if (m.budgeted && u - f > .15 && u < 1) add(3, 'caution', '⏱️', 'Spending faster than the calendar', Math.round(u * 100) + '% of your budget is used and only ' + Math.round(f * 100) + '% of the month is gone.', 'Slow down, big spender. The month isn’t over.', { label: 'See budgets', a: 'tab', tab: 'budget' });
+    if (m.budgeted && day >= 10 && u <= f && !anyOver) add(6, 'good', '🏆', 'You’re ahead of pace', 'Spending is at ' + Math.round(u * 100) + '% of budget with ' + Math.round(f * 100) + '% of the month gone. Keep it boring.', 'Ahead of pace. This is what winning looks like.', null);
+    if (inc && m.budgeted > inc) add(1, 'warn', '📐', 'Budgets add up to more than your income', 'Your limits total ' + money(m.budgeted) + ' against ' + money(inc) + ' of income. Trim ' + money(m.budgeted - inc) + ' so the plan can actually work.', 'Your budgets don’t fit your income. Trim some lines.', { label: 'Adjust budgets', a: 'tab', tab: 'budget' });
+    else if (inc && m.budgeted < inc * .5) add(5, 'info', '🧩', 'Half your income has no plan', 'Only ' + Math.round(m.budgeted / inc * 100) + '% of income is assigned to spending categories. Plan for savings and investing too, around 20% is a common target.', 'Half your paycheck has no job. Fix that.', { label: 'Add a budget', a: 'newBudget' });
+  }
+  if (inc) {
+    const rate = (m.saved + m.invested) / inc;
+    if (day >= 7 && rate < .1) add(4, 'info', '🐖', 'Pay yourself first', 'A common target is about 20% of take-home, roughly ' + money(inc * .2) + ' a month, to savings and investing. You’re at ' + Math.round(rate * 100) + '% so far.', 'Pay yourself first. Twenty percent is the classic.', { label: 'Add to savings', a: 'newDeposit' });
+    else if (rate >= .2) add(7, 'good', '💪', Math.round(rate * 100) + '% savings rate', 'That’s at or above the classic 20% target. Future you is sending a thank-you card.', 'A ' + Math.round(rate * 100) + '% savings rate?! Respect.', null);
+  }
+  const ef = S.goals.find(g => /emerg/i.test(g.name));
+  if (!ef) add(4, 'info', '🛟', 'Build an emergency fund', 'A common rule of thumb is 3 to 6 months of essential expenses in cash. For you, 3 months is roughly ' + money(efTarget()) + '.', 'Step one: an emergency fund. Boring, essential.', { label: 'Create fund', a: 'newGoal', preset: 'emergency' });
+  else if (goalSaved(ef) < ef.target) add(6, 'info', '🛟', 'Emergency fund: ' + Math.round(goalSaved(ef) / ef.target * 100) + '%', money(ef.target - goalSaved(ef)) + ' to go. This is what lets you stay invested when life gets messy.', 'Keep stacking that emergency fund.', { label: 'Add money', a: 'newDeposit', id: ef.id });
+  if (!S.investments.length) add(5, 'info', '📈', 'Start investing, even small', 'The classic playbook: 1) grab any employer 401(k) match (free money), 2) pay off high-interest debt, 3) put steady cash into low-cost, broad index funds. Small and consistent beats big and rare. This is general education, not personal advice.', 'Index funds, bro. Boring builds fortunes.', { label: 'Investing 101', a: 'tab', tab: 'grow', gt: 'invest' });
+  else if (!m.invested && day >= 5) add(5, 'info', '📅', 'Nothing invested this month yet', 'Setting a fixed amount to invest every payday (dollar-cost averaging) takes the guesswork out. Automate it if you can.', 'Nothing invested yet this month. Automate it.', { label: 'Log investment', a: 'newInvest' });
+  const doy = Math.floor((new Date() - new Date(new Date().getFullYear(), 0, 0)) / 864e5);
+  const tip = TIPS[doy % TIPS.length];
+  add(9, 'info', '🧠', 'Bro tip of the day', tip + ' (General education, not personalized financial advice.)', tip, null);
+  if (S.fed < 30) add(2, 'info', '🍔', nm + ' is starving', 'Feed me something. Water is free, snacks come from the Shop.', 'I am so hungry I could expense a steak.', { label: 'Feed', a: 'feed' });
+  if (S.fun < 30) add(3, 'info', '🎈', nm + ' is bored', 'Tap me, pet me, or buy me a bottle-service upgrade.', 'Pet me. I’m bored.', { label: 'Feed', a: 'feed' });
+  return out.sort((a, b) => a.p - b.p);
+}
+
+/* =====================================================================
+   PRACTICE MARKET
+   ===================================================================== */
+const TICKERS = [
+  { t: 'BROC', name: 'Bro Capital Index', vol: .008, drift: .0004, p0: 100, blurb: 'A broad index fund. Boring. Reliable.' },
+  { t: 'BOND', name: 'Boring Bonds ETF', vol: .0025, drift: .0002, p0: 50, blurb: 'Low drama, low return.' },
+  { t: 'VEST', name: 'Puffer Vest Holdings', vol: .022, drift: .0005, p0: 64, blurb: 'A single company. Bumpier ride.' },
+  { t: 'CHAD', name: 'Chad’s Steakhouses', vol: .02, drift: .0004, p0: 42, blurb: 'Restaurants. Cyclical and carnivorous.' },
+  { t: 'AVOC', name: 'Avocado Toast Co.', vol: .03, drift: .0006, p0: 28, blurb: 'Hype stock. Ripe for one day only.' },
+  { t: 'MOON', name: 'MoonShot Rockets', vol: .06, drift: .0003, p0: 15, blurb: 'Either a rocket or a crater.' }
+];
+const gauss = () => { let u = 0, v = 0; while (!u) u = Math.random(); while (!v) v = Math.random(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); };
+function stepMarket(n) {
+  const M = S.market;
+  for (let d = 0; d < n; d++) {
+    TICKERS.forEach(k => {
+      let p = M.prices[k.t] * Math.exp(k.drift - .5 * k.vol * k.vol + k.vol * gauss());
+      p = Math.max(.5, p);
+      M.prices[k.t] = p;
+      const h = M.hist[k.t]; h.push(p); if (h.length > 60) h.shift();
+    });
+    M.day++;
+  }
+}
+function ensureMarket() {
+  if (S.market) return;
+  const M = { cash: 10000, hold: {}, cost: {}, prices: {}, hist: {}, last: Date.now(), day: 0, trades: 0 };
+  TICKERS.forEach(k => { M.prices[k.t] = k.p0; M.hist[k.t] = [k.p0]; M.hold[k.t] = 0; M.cost[k.t] = 0; });
+  S.market = M; stepMarket(30); M.day = 0; save();
+}
+function catchUpMarket() {
+  ensureMarket();
+  const M = S.market, n = Math.min(40, Math.floor((Date.now() - M.last) / 600000));
+  if (n > 0) { stepMarket(n); M.last += n * 600000; if (Date.now() - M.last > 40 * 600000) M.last = Date.now(); save(); }
+}
+const marketValue = () => { const M = S.market; return M.cash + sum(TICKERS.map(k => M.hold[k.t] * M.prices[k.t])); };
+function spark(h) {
+  const w = 110, ht = 34, mn = Math.min(...h), mx = Math.max(...h);
+  const pts = h.map((v, i) => (i / (h.length - 1) * w).toFixed(1) + ',' + (ht - 2 - (v - mn) / (mx - mn || 1) * (ht - 4)).toFixed(1)).join(' ');
+  return `<svg class="spark ${h[h.length - 1] >= h[0] ? 'up' : 'dn'}" viewBox="0 0 ${w} ${ht}" aria-hidden="true"><polyline points="${pts}"/></svg>`;
+}
+
+/* =====================================================================
+   VIEWS
+   ===================================================================== */
+const IC = {
+  home: '<path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',
+  budget: '<path d="M3 7a2 2 0 0 1 2-2h13v4"/><path d="M3 7v11a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-9a1 1 0 0 0-1-1H5a2 2 0 0 1-2-2"/><circle cx="16.5" cy="14.5" r="1.2"/>',
+  grow: '<path d="M3 17 9 11l4 4 8-8"/><path d="M15 7h6v6"/>',
+  shop: '<path d="M5 8h14l-1 12H6z"/><path d="M9 8a3 3 0 0 1 6 0"/>',
+  quests: '<path d="M8 4h8v6a4 4 0 0 1-8 0z"/><path d="M8 6H4v2a3 3 0 0 0 4 2.8M16 6h4v2a3 3 0 0 1-4 2.8"/><path d="M12 14v4M8 21h8M10 18h4"/>',
+  gear: '<path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/>'
+};
+const TABS = [['home', 'Home'], ['budget', 'Budget'], ['grow', 'Grow'], ['shop', 'Shop'], ['quests', 'Quests']];
+
+function headerHTML() {
+  return `<header class="top"><div class="brand"><span class="logo">${broSVG({ eq: { hat: null, eyes: 'sun', top: 'tee', neck: null, bg: null }, mood: 'happy', vb: '44 22 112 112', label: '' })}</span><h1>My Little<br>Finance Bro</h1></div><div class="top-r"><div class="coins" aria-label="${S.coins} coins">${coinIcon(22)}<b>${S.coins.toLocaleString()}</b></div><button class="icon-btn" data-a="settings" aria-label="Settings"><svg viewBox="0 0 24 24">${IC.gear}</svg></button></div></header>`;
+}
+function navHTML() {
+  const c = claimable();
+  return `<nav class="tabs" aria-label="Main">${TABS.map(([k, l]) => `<button class="tab ${TAB === k ? 'on' : ''}" data-a="tab" data-tab="${k}" ${TAB === k ? 'aria-current="page"' : ''}><svg viewBox="0 0 24 24" aria-hidden="true">${IC[k]}</svg><span>${l}</span>${k === 'quests' && c ? `<i class="dot" aria-label="${c} rewards ready">${c}</i>` : ''}</button>`).join('')}</nav>`;
+}
+function stageHTML() {
+  const li = levelInfo(), nm = esc(S.name);
+  return `<section class="stage" aria-label="${nm}">
+<div class="stage-head"><div><div class="nm">${nm}</div><div class="ttl">Lv ${li.l} ${li.title} · ${li.to} XP to next</div></div><div class="streak" title="Daily check-in streak">🔥 ${streakNow()} day${streakNow() === 1 ? '' : 's'}</div></div>
+<div class="xp" aria-hidden="true"><i style="width:${li.pct}%"></i></div>
+<div class="bubble" id="bubble" aria-live="polite">${esc(BUBBLE)}</div>
+<div class="scene-wrap"><button class="scene" data-a="pet" aria-label="Pet ${nm}"><span data-live-bro style="display:block;width:100%;height:100%">${broSVG()}</span></button>${PV && PV.slot !== 'snack' ? `<div class="pv-tag"><span>Trying on: ${esc(ITEM[PV.id].name)}</span><button data-a="clearPV">Clear</button></div>` : ''}</div>
+<div class="meters" id="meters">${metersHTML()}</div>
+<div class="stage-actions"><button class="btn" data-a="feed">🍔 Feed</button><button class="btn" data-a="chat">💬 Ask ${nm.length > 8 ? 'bro' : nm}</button><button class="btn" data-a="tab" data-tab="shop">👕 Closet</button></div>
+</section>`;
+}
+function advCard(a) {
+  const at = a.act ? Object.entries(a.act).filter(([k]) => k !== 'label').map(([k, v]) => `data-${k}="${esc(v)}"`).join(' ') : '';
+  return `<article class="adv ${a.tone}"><div class="ai" aria-hidden="true">${a.icon}</div><div class="grow1"><h3>${esc(a.title)}</h3><p>${esc(a.body)}</p>${a.act ? `<button class="btn sm" ${at}>${esc(a.act.label)}</button>` : ''}</div></article>`;
+}
+function homeView() {
+  const m = mstats(), adv = advice().slice(0, 4);
+  return `<div class="card"><div class="stats">
+<div class="stat"><b class="${m.left < 0 ? 'neg' : ''}">${money(m.left)}</b><span>left this month</span></div>
+<div class="stat"><b>${money(m.saved)}</b><span>saved</span></div>
+<div class="stat"><b>${money(m.invested)}</b><span>invested</span></div></div>
+${S.income ? '' : '<p class="fine" style="margin:10px 0 0">Add your monthly income in settings to see what’s left.</p>'}</div>
+<div class="qa"><button class="btn" data-a="newTxn"><span>🧾</span>Log spend</button><button class="btn" data-a="newDeposit"><span>🐖</span>Save</button><button class="btn" data-a="newInvest"><span>📈</span>Invest</button></div>
+<h2>${esc(S.name)}’s briefing</h2>
+${adv.map(advCard).join('')}
+<p class="fine">Tips are general education, not personalized financial advice. Consider a licensed professional for big decisions.</p>`;
+}
+
+/* budget */
+function budgetView() {
+  const mk = VM, m = mstats(mk), cur = mk === curMonth();
+  const inc = m.income || 0;
+  const seg = (v, c) => inc > 0 && v > 0 ? `<i style="width:${clamp(v / inc * 100, 0, 100)}%;background:${c}"></i>` : '';
+  const cats = S.budgets.map(b => {
+    const s = m.by[b.id] || 0, pct = b.limit ? s / b.limit * 100 : 0, over = s > b.limit;
+    const col = over ? 'red' : pct >= 75 ? 'gold' : 'green';
+    return `<article class="cat"><div class="cat-h"><span class="ce" aria-hidden="true">${b.emoji}</span><div class="grow1"><h3>${esc(b.name)}</h3><small>${money(s)} of ${money(b.limit)}</small></div><b class="${over ? 'neg' : ''}">${over ? money(s - b.limit) + ' over' : money(b.limit - s) + ' left'}</b></div><div class="bar ${col}" role="progressbar" aria-label="${esc(b.name)} used" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.min(100, Math.round(pct))}"><i style="width:${Math.min(100, pct)}%"></i></div><div class="cat-a"><button class="btn sm" data-a="newTxn" data-b="${b.id}">+ Log</button><button class="link" data-a="editBudget" data-id="${b.id}">Edit</button></div></article>`;
+  }).join('');
+  const txs = m.tx.slice().sort((a, b) => b.date.localeCompare(a.date));
+  return `<div class="mnav"><button class="icon-btn" data-a="vm" data-d="-1" aria-label="Previous month">‹</button><h2>${monthLabel(mk)}</h2><button class="icon-btn" data-a="vm" data-d="1" aria-label="Next month" ${cur ? 'disabled' : ''}>›</button></div>
+<div class="card">
+<div class="stats"><div class="stat"><b>${money(inc)}</b><span>income</span></div><div class="stat"><b>${money(m.spent)}</b><span>spent</span></div><div class="stat"><b class="${m.left < 0 ? 'neg' : ''}">${money(m.left)}</b><span>left</span></div></div>
+${inc > 0 ? `<div class="split" role="img" aria-label="Income split: spent ${money(m.spent)}, saved and invested ${money(m.saved + m.invested)}, left ${money(Math.max(0, m.left))}">${seg(m.spent, 'var(--pink)')}${seg(m.saved + m.invested, 'var(--green)')}</div><div class="legend"><em style="--c:var(--pink)">Spent</em><em style="--c:var(--green)">Saved + invested</em><em style="--c:var(--surface2)">Left</em></div>` : '<p class="fine" style="margin:12px 0 0">Set your monthly income in settings to see the full picture.</p>'}
+</div>
+<div class="row" style="margin-bottom:14px"><button class="btn primary" data-a="newTxn">+ Log spending</button><button class="btn" data-a="newBudget">+ New budget</button><button class="btn ghost" data-a="autoBudget">Auto-build 50/30/20</button></div>
+${S.budgets.length ? `<div class="grid2">${cats}</div>${m.uncat > 0 ? `<p class="fine" style="margin-top:10px">${money(m.uncat)} of spending has no budget category.</p>` : ''}` : `<div class="empty"><b>No budgets yet</b>Budgets are monthly limits for things like groceries or fun. Start with the 50/30/20 starter or make your own.<br><button class="btn primary" data-a="autoBudget">Build starter budget</button></div>`}
+<h2>Activity</h2>
+${txs.length ? `<div class="card">${txs.slice(0, 40).map(t => { const b = S.budgets.find(x => x.id === t.budgetId); return `<div class="li"><span class="d">${shortDate(t.date)}</span><span class="grow1">${t.type === 'income' ? '💵 ' : (b ? b.emoji + ' ' : '')}${esc(t.note || (t.type === 'income' ? 'Income' : b ? b.name : 'Spending'))}${b && t.note ? `<small> · ${esc(b.name)}</small>` : ''}</span><b class="${t.type === 'income' ? 'pos' : ''}">${t.type === 'income' ? '+' : '-'}${money(t.amount)}</b><button class="x" data-a="delTxn" data-id="${t.id}" aria-label="Delete entry">✕</button></div>`; }).join('')}</div>` : `<div class="empty"><b>Nothing logged in ${monthLabel(mk)}</b>Log your first expense and earn a daily check-in bonus.</div>`}`;
+}
+
+/* grow */
+function growView() {
+  const tabs = [['save', 'Savings'], ['invest', 'Investing'], ['practice', 'Practice']];
+  return `<div class="seg" role="tablist" style="margin-bottom:14px">${tabs.map(([k, l]) => `<button role="tab" aria-selected="${GT === k}" class="${GT === k ? 'on' : ''}" data-a="gt" data-gt="${k}">${l}</button>`).join('')}</div>` +
+    (GT === 'save' ? saveView() : GT === 'invest' ? investView() : practiceView());
+}
+function depList(list, act) {
+  return list.slice().sort((a, b) => b.date.localeCompare(a.date)).slice(0, 8).map(d => `<div class="li"><span class="d">${shortDate(d.date)}</span><span class="grow1">${esc(d.account || d.note || '')}${d.reward ? `<small> · +${d.reward} coins</small>` : ''}</span><b class="pos">+${money(d.amount)}</b><button class="x" data-a="${act}" data-id="${d.id}" aria-label="Delete entry">✕</button></div>`).join('');
+}
+function saveView() {
+  const m = mstats();
+  const goals = S.goals.map(g => {
+    const sv = goalSaved(g), p = g.target ? clamp(sv / g.target * 100, 0, 100) : 0;
+    const deps = S.deposits.filter(d => d.goalId === g.id);
+    return `<article class="card"><div class="goal-h"><span class="ce" aria-hidden="true">${g.emoji}</span><div class="grow1"><h3>${esc(g.name)}</h3><small>${money(sv)} of ${money(g.target)}</small></div><b class="pct">${Math.round(p)}%</b></div><div class="bar green" role="progressbar" aria-label="${esc(g.name)} progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(p)}"><i style="width:${p}%"></i></div><div class="cat-a"><button class="btn sm primary" data-a="newDeposit" data-id="${g.id}">Add money</button><button class="link" data-a="editGoal" data-id="${g.id}">Edit</button></div>${deps.length ? `<details><summary>History (${deps.length})</summary>${depList(deps, 'delDeposit')}</details>` : ''}</article>`;
+  }).join('');
+  return `<div class="card"><div class="stats"><div class="stat"><b>${money(m.saved)}</b><span>saved this month</span></div><div class="stat"><b>${money(sum(S.goals.map(goalSaved)))}</b><span>saved in total</span></div><div class="stat"><b>${S.goals.length}</b><span>goals</span></div></div><p class="fine" style="margin:10px 0 0">Every deposit earns coins: about 1 per $5, at least 2.</p></div>
+<div class="row" style="margin-bottom:14px"><button class="btn primary" data-a="newGoal">+ New goal</button>${S.goals.length ? '<button class="btn" data-a="newDeposit">Add money</button>' : ''}</div>
+${S.goals.length ? goals : `<div class="empty"><b>Start with an emergency fund</b>Cash for surprises keeps you from selling investments at a bad time. A common target is 3 to 6 months of essentials.<br><button class="btn primary" data-a="newGoal" data-preset="emergency">Create emergency fund</button></div>`}`;
+}
+function investView() {
+  const m = mstats(), all = sum(S.investments.map(i => i.amount));
+  const by = {}; S.investments.forEach(i => { by[i.account] = (by[i.account] || 0) + i.amount; });
+  const mx = Math.max(1, ...Object.values(by));
+  const r = CALC.r / 100 / 12, n = CALC.y * 12;
+  const fv = r === 0 ? CALC.m * n : CALC.m * ((Math.pow(1 + r, n) - 1) / r);
+  const tipsList = [
+    ['Get the match first', 'If your employer matches 401(k) contributions, contributing enough to get the full match is an immediate return you can’t get elsewhere.'],
+    ['Kill high-interest debt', 'Paying off a 22% credit card is a guaranteed 22% return. It usually beats investing while that balance exists.'],
+    ['Diversify, keep fees low', 'Broad index funds spread risk across hundreds or thousands of companies. Compare expense ratios; small fees add up over decades.'],
+    ['Invest on a schedule', 'Investing the same amount every payday (dollar-cost averaging) removes the temptation to time the market.'],
+    ['Match risk to timeline', 'Money needed in the next few years belongs in cash-like places. Money for decades from now can ride out swings.']
+  ];
+  return `<div class="card"><div class="stats"><div class="stat"><b>${money(m.invested)}</b><span>this month</span></div><div class="stat"><b>${money(all)}</b><span>logged all-time</span></div><div class="stat"><b>${Object.keys(by).length}</b><span>accounts</span></div></div><p class="fine" style="margin:10px 0 0">Log money you actually moved into investments. Rewards: 5 coins plus about 1 per $4.</p></div>
+<div class="row" style="margin-bottom:14px"><button class="btn primary" data-a="newInvest">+ Log investment</button></div>
+${S.investments.length ? `<div class="card"><h3 style="margin-bottom:10px">Where it’s going</h3><div class="bars">${Object.entries(by).sort((a, b) => b[1] - a[1]).map(([k, v]) => `<div><span>${esc(k)}</span><div class="bar sky"><i style="width:${v / mx * 100}%"></i></div><b>${money(v)}</b></div>`).join('')}</div><details><summary>Recent entries</summary>${depList(S.investments, 'delInvest')}</details></div>` : `<div class="empty"><b>Nothing logged yet</b>Made a 401(k), IRA, or brokerage contribution? Log it here and your bro celebrates.</div>`}
+<div class="card calc" data-calc><h3>Future you calculator</h3>
+<label for="calcM">Invest per month <output id="oM">${money(CALC.m)}</output></label><input type="range" id="calcM" min="25" max="2000" step="25" value="${CALC.m}">
+<label for="calcY">For how many years <output id="oY">${CALC.y}</output></label><input type="range" id="calcY" min="1" max="40" step="1" value="${CALC.y}">
+<label for="calcR">Average yearly return <output id="oR">${CALC.r}%</output></label><input type="range" id="calcR" min="0" max="12" step="0.5" value="${CALC.r}">
+<p class="calc-out" id="calcOut">${calcText(fv)}</p><p class="fine" style="margin:0">A constant-return illustration, not a forecast. Real markets go up and down and returns aren’t guaranteed.</p></div>
+<h2>Investing 101</h2>${tipsList.map(([t, b]) => `<details class="card" style="padding:12px 16px"><summary style="font:600 17px var(--font-d);color:var(--ink)">${t}</summary><p style="margin:6px 0 0;color:var(--ink2)">${b}</p></details>`).join('')}
+<p class="fine">General education only, not personalized investment advice. Investments can lose value.</p>`;
+}
+function calcText(fv) {
+  const contrib = CALC.m * CALC.y * 12;
+  return `In ${CALC.y} year${CALC.y === 1 ? '' : 's'}, ${money(CALC.m)}/month could grow to about <b>${money(Math.round(fv))}</b>: ${money(contrib)} from you and ${money(Math.max(0, Math.round(fv - contrib)))} from compounding at ${CALC.r}%/year.`;
+}
+function updateCalc() {
+  CALC.m = +$('#calcM').value; CALC.y = +$('#calcY').value; CALC.r = +$('#calcR').value;
+  const r = CALC.r / 100 / 12, n = CALC.y * 12;
+  const fv = r === 0 ? CALC.m * n : CALC.m * ((Math.pow(1 + r, n) - 1) / r);
+  $('#oM').textContent = money(CALC.m); $('#oY').textContent = CALC.y; $('#oR').textContent = CALC.r + '%';
+  $('#calcOut').innerHTML = calcText(fv);
+}
+function practiceView() {
+  catchUpMarket();
+  const M = S.market, val = marketValue(), pl = val - 10000;
+  return `<div class="card"><div class="stats"><div class="stat"><b>${money(M.cash)}</b><span>practice cash</span></div><div class="stat"><b>${money(val)}</b><span>portfolio</span></div><div class="stat"><b class="${pl < 0 ? 'neg' : 'pos'}">${pl >= 0 ? '+' : ''}${money(pl)}</b><span>vs $10,000 start</span></div></div><p class="fine" style="margin:10px 0 0">Fake money, fictional companies. Prices drift on their own (one market day per 10 minutes you’re away) or fast-forward them below. No coins for trading, just lessons. Watch how the index barely flinches while MOON whipsaws.</p></div>
+<div class="row" style="margin-bottom:14px"><button class="btn" data-a="mday" data-n="1">+1 day</button><button class="btn" data-a="mday" data-n="5">+1 week</button><button class="btn" data-a="mday" data-n="21">+1 month</button><button class="link dng" data-a="mreset">Reset</button></div>
+${TICKERS.map(k => {
+    const h = M.hist[k.t], p = M.prices[k.t], ch = h.length > 1 ? p / h[h.length - 2] - 1 : 0;
+    const sh = M.hold[k.t], hv = sh * p, gain = hv - M.cost[k.t];
+    return `<article class="tick"><div><h3>${k.t} <small style="font:500 14px var(--font-b)">${esc(k.name)}</small></h3><small>${esc(k.blurb)}</small></div><div class="px">${money(p)}<small class="${ch < 0 ? 'neg' : 'pos'}">${ch >= 0 ? '+' : ''}${(ch * 100).toFixed(2)}% today</small></div>${spark(h)}<div style="text-align:right">${sh > 0.0001 ? `<small>You hold ${money(hv)}<br><span class="${gain < 0 ? 'neg' : 'pos'}">${gain >= 0 ? '+' : ''}${money(gain)}</span></small>` : ''}</div><div class="full"><button class="btn sm primary" data-a="trade" data-t="${k.t}" data-side="buy">Buy</button>${sh > 0.0001 ? `<button class="btn sm" data-a="trade" data-t="${k.t}" data-side="sell">Sell</button><button class="link" data-a="sellAll" data-t="${k.t}">Sell all</button>` : ''}</div></article>`;
+  }).join('')}`;
+}
+
+/* shop */
+function shopView() {
+  const items = ITEMS.filter(i => i.slot === SL);
+  const eqName = SL === 'snack' ? '' : (PV ? 'Trying: ' + ITEM[PV.id].name : 'Wearing your current look');
+  return `<div class="mini-prev"><div data-live-bro>${broSVG()}</div><div class="grow1"><b style="font:600 18px var(--font-d)">${esc(S.name)}</b><br><small>${esc(eqName || 'Snacks fill his Full and Fun meters')}</small>${PV && PV.slot !== 'snack' ? '<br><button class="link" data-a="clearPV">Clear preview</button>' : ''}</div></div>
+<div class="slots" role="tablist">${SLOTS.map(([k, l]) => `<button role="tab" aria-selected="${SL === k}" class="${SL === k ? 'on' : ''}" data-a="slot" data-slot="${k}">${l}</button>`).join('')}</div>
+<div class="items">${items.map(it => {
+    const owned = S.owned.includes(it.id), equipped = S.eq[it.slot] === it.id;
+    const [tn, tc] = tierOf(it.price);
+    let btns = '';
+    if (it.slot === 'snack') {
+      btns = `<button class="btn sm gold" data-a="buy" data-id="${it.id}" ${S.coins < it.price ? 'disabled' : ''}>Buy · ${it.price}</button>`;
+    } else if (owned) {
+      btns = equipped ? (it.slot === 'top' || it.slot === 'bg' ? '<button class="btn sm" disabled>Wearing</button>' : `<button class="btn sm" data-a="unequip" data-slot="${it.slot}">Take off</button>`) : `<button class="btn sm primary" data-a="equip" data-id="${it.id}">Equip</button>`;
+    } else {
+      btns = `<button class="btn sm" data-a="try" data-id="${it.id}" data-slot="${it.slot}">${PV && PV.id === it.id ? 'Untry' : 'Try'}</button><button class="btn sm gold" data-a="buy" data-id="${it.id}" ${S.coins < it.price ? 'disabled' : ''}>${it.price}</button>`;
+    }
+    return `<article class="item ${equipped ? 'eq' : ''}"><div class="thumb">${it.slot === 'snack' ? it.emoji : thumbSVG(it)}</div><h3>${esc(it.name)}</h3>${it.slot === 'snack' ? `<small>+${it.fed} full, +${it.fun} fun · own ${S.inv[it.id] || 0}</small>` : `<span class="tier t-${tc}">${tn}${owned ? ' · owned' : ''}</span>`}<div class="item-a">${btns}</div>${!owned && it.slot !== 'snack' && S.coins < it.price ? `<small>${it.price - S.coins} more coins</small>` : ''}</article>`;
+  }).join('')}</div>
+<p class="fine" style="margin-top:14px">Earn coins by saving, investing, staying on budget and logging your money. Outfits are cosmetic only.</p>`;
+}
+
+/* quests */
+function questsView() {
+  const li = levelInfo();
+  const rows = QUESTS.map(q => ({ q, s: qState(q) }));
+  rows.sort((a, b) => (b.s.ready && !b.s.claimed) - (a.s.ready && !a.s.claimed) || a.s.claimed - b.s.claimed);
+  return `<div class="card"><div class="stats"><div class="stat"><b>Lv ${li.l}</b><span>${li.title}</span></div><div class="stat"><b>🔥 ${streakNow()}</b><span>day streak</span></div><div class="stat"><b>${S.lifetime.toLocaleString()}</b><span>coins earned</span></div></div><p class="fine" style="margin:10px 0 0">Daily check-ins: log any spending, saving or investing. Money actions earn up to ${DAILY_CAP} coins a day. Monthly quests reset each month.</p></div>
+<h2>Quests</h2>
+${rows.map(({ q, s }) => {
+    const pct = Math.min(100, s.t ? s.c / s.t * 100 : 0);
+    const cur = q.money ? money(Math.min(s.c, s.t)) : Math.min(Math.floor(s.c), s.t);
+    const tot = q.money ? money(s.t) : s.t;
+    return `<article class="quest ${s.ready && !s.claimed ? 'ready' : ''} ${s.claimed ? 'done' : ''}"><div class="grow1"><h3>${esc(q.t)} ${q.per === 'month' ? '<small style="font:500 12px var(--font-b)">monthly</small>' : ''}</h3><small>${esc(q.d)}</small><div class="bar ${s.ready ? 'gold' : 'green'}" style="margin-top:8px" role="progressbar" aria-label="${esc(q.t)} progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(pct)}"><i style="width:${pct}%"></i></div><small>${cur} / ${tot}</small></div><div>${s.claimed ? '<span class="qr">✔ Claimed</span>' : s.ready ? `<button class="btn sm gold" data-a="claim" data-id="${q.id}">Claim ${q.reward}</button>` : `<span class="qr">${coinIcon(18)}${q.reward}</span>`}</div></article>`;
+  }).join('')}`;
+}
+function viewHTML() {
+  switch (TAB) {
+    case 'budget': return budgetView();
+    case 'grow': return growView();
+    case 'shop': return shopView();
+    case 'quests': return questsView();
+    default: return homeView();
+  }
+}
+
+/* =====================================================================
+   RENDER
+   ===================================================================== */
+function render() {
+  const y = window.scrollY;
+  const ae = document.activeElement;
+  const sig = ae && ae.closest && ae.closest('#app') && ae.dataset && ae.dataset.a ? JSON.stringify(ae.dataset) : null;
+  document.body.dataset.tab = TAB;
+  $('#app').innerHTML = headerHTML() + `<div class="layout"><aside class="stage-col">${stageHTML()}</aside><div class="content">${navHTML()}<main id="view" tabindex="-1">${viewHTML()}</main></div></div>`;
+  window.scrollTo(0, y);
+  if (sig) { const el = $$('#app [data-a]').find(e => JSON.stringify(e.dataset) === sig); if (el && !el.disabled) el.focus({ preventScroll: true }); }
+}
+function setTab(t, gt, slot) {
+  closeModal();
+  if (TAB === 'shop' && t !== 'shop') PV = null;
+  TAB = t; if (gt) GT = gt; if (slot) SL = slot;
+  render(); window.scrollTo(0, 0);
+}
+
+/* =====================================================================
+   MODALS + FORMS
+   ===================================================================== */
+function openModal(html) {
+  closeModal(true);
+  lastFocus = document.activeElement;
+  const w = document.createElement('div'); w.className = 'modal-wrap'; w.id = 'modal';
+  w.innerHTML = `<div class="modal" role="dialog" aria-modal="true">${html}</div>`;
+  w.addEventListener('mousedown', e => { if (e.target === w) closeModal(); });
+  document.body.appendChild(w); document.body.classList.add('noscroll');
+  const f = $('input:not([type=hidden]),select,textarea,button.btn', w); if (f) f.focus({ preventScroll: true });
+}
+function closeModal(silent) {
+  const w = $('#modal'); if (w) w.remove();
+  document.body.classList.remove('noscroll');
+  if (!silent && lastFocus && document.contains(lastFocus)) lastFocus.focus({ preventScroll: true });
+}
+function fieldHTML(f) {
+  const id = 'f_' + f.name; let ctl;
+  if (f.type === 'select') ctl = `<select id="${id}" name="${f.name}">${f.options.map(o => `<option value="${esc(o.v)}" ${String(o.v) === String(f.value) ? 'selected' : ''}>${esc(o.l)}</option>`).join('')}</select>`;
+  else if (f.type === 'emoji') ctl = `<input type="hidden" name="${f.name}" value="${esc(f.value)}"><div class="chips" data-pick="${f.name}" role="group" aria-label="${esc(f.label)}">${f.options.map(e => `<button type="button" class="chip ${e === f.value ? 'on' : ''}" data-a="pick" data-v="${e}" aria-label="${e}">${e}</button>`).join('')}</div>`;
+  else if (f.type === 'seg') ctl = `<input type="hidden" name="${f.name}" value="${esc(f.value)}"><div class="seg" data-pick="${f.name}" role="group" aria-label="${esc(f.label)}">${f.options.map(o => `<button type="button" class="${String(o.v) === String(f.value) ? 'on' : ''} ${o.sw ? 'swatch' : ''}" ${o.sw ? `style="--sw:${o.sw}"` : ''} data-a="pick" data-v="${esc(o.v)}" ${o.sw ? `aria-label="${esc(o.l)}"` : ''}>${o.sw ? '' : esc(o.l)}</button>`).join('')}</div>`;
+  else ctl = `<input id="${id}" name="${f.name}" type="${f.type || 'text'}" value="${esc(f.value == null ? '' : f.value)}" ${f.placeholder ? `placeholder="${esc(f.placeholder)}"` : ''} ${f.step ? `step="${f.step}"` : ''} ${f.min != null ? `min="${f.min}"` : ''} ${f.max ? `max="${f.max}"` : ''} ${f.maxlength ? `maxlength="${f.maxlength}"` : ''} ${f.inputmode ? `inputmode="${f.inputmode}"` : ''} autocomplete="off">`;
+  return `<div class="field"><label ${f.type === 'select' || !['emoji', 'seg'].includes(f.type) ? `for="${id}"` : ''}>${esc(f.label)}</label>${ctl}${f.hint ? `<small>${esc(f.hint)}</small>` : ''}</div>`;
+}
+function openForm(cfg) {
+  openModal(`<h2>${esc(cfg.title)}</h2>${cfg.intro ? `<p class="muted">${esc(cfg.intro)}</p>` : ''}${cfg.pre || ''}<form id="mform" novalidate>${cfg.fields.map(fieldHTML).join('')}<p class="err" id="merr" role="alert"></p><div class="row end"><button type="button" class="btn ghost" data-a="closeModal">Cancel</button><button class="btn primary" type="submit">${esc(cfg.submit || 'Save')}</button></div></form>${cfg.footer || ''}`);
+  $('#mform').addEventListener('submit', e => {
+    e.preventDefault();
+    const vals = {}; new FormData(e.target).forEach((v, k) => { vals[k] = typeof v === 'string' ? v : ''; });
+    const err = cfg.validate ? cfg.validate(vals) : null;
+    if (err) { $('#merr').textContent = err; return; }
+    closeModal(true);
+    cfg.onSubmit(vals);
+  });
+}
+function pickBtn(el) {
+  const box = el.closest('[data-pick]'); if (!box) return;
+  const inp = box.parentElement.querySelector('input[name="' + box.dataset.pick + '"]');
+  if (inp) inp.value = el.dataset.v;
+  $$('button', box).forEach(b => b.classList.toggle('on', b === el));
+  if ($('#setPrev')) updateSetPrev();
+}
+function confirmBox(title, body, yes, fn) {
+  CONFIRM = fn;
+  openModal(`<h2>${esc(title)}</h2><p>${esc(body)}</p><div class="row end"><button class="btn ghost" data-a="closeModal">Keep it</button><button class="btn danger" data-a="confirmYes">${esc(yes)}</button></div>`);
+}
+const bud = id => S.budgets.find(b => b.id === id);
+
+/* budgets */
+function openBudgetForm(id) {
+  const b = id ? bud(id) : null;
+  openForm({
+    title: b ? 'Edit budget' : 'New budget',
+    intro: b ? '' : 'A monthly limit for one type of spending.',
+    fields: [
+      { name: 'name', label: 'Name', value: b ? b.name : '', placeholder: 'Groceries', maxlength: 24 },
+      { name: 'emoji', label: 'Icon', type: 'emoji', options: CAT_EMOJI, value: b ? b.emoji : '🛒' },
+      { name: 'limit', label: 'Monthly limit ($)', type: 'number', step: '0.01', min: 0, inputmode: 'decimal', value: b ? b.limit : '', placeholder: '400' }
+    ],
+    footer: b ? `<div style="text-align:center;margin-top:8px"><button class="link dng" data-a="delBudget" data-id="${b.id}">Delete this budget</button></div>` : '',
+    validate: v => { if (!v.name.trim()) return 'Give the budget a name.'; const n = parseAmt(v.limit); if (!(n > 0)) return 'Enter a monthly limit above $0.'; if (S.budgets.some(x => x.id !== id && x.name.toLowerCase() === v.name.trim().toLowerCase())) return 'You already have a budget with that name.'; },
+    onSubmit: v => {
+      const n = parseAmt(v.limit);
+      if (b) { b.name = v.name.trim(); b.emoji = v.emoji; b.limit = n; }
+      else { S.budgets.push({ id: uid(), name: v.name.trim(), emoji: v.emoji, limit: n }); say('New budget: ' + v.name.trim() + '. Discipline looks good on you.'); }
+      save(); render();
+    }
+  });
+}
+function autoBudget() {
+  if (!S.income) { toast('Add your monthly income first so I can size the budgets.'); openSettings(); return; }
+  let n = 0;
+  AUTO.forEach(([emoji, name, share]) => {
+    if (S.budgets.some(b => b.name.toLowerCase() === name.toLowerCase())) return;
+    S.budgets.push({ id: uid(), name, emoji, limit: Math.max(5, Math.round(S.income * share / 5) * 5) }); n++;
+  });
+  save(); render();
+  if (n) { toast('Added ' + n + ' budgets using 50/30/20. The last 20% is for savings and investing.'); say('Starter budget locked in. Now go save the other 20%.'); }
+  else toast('Those starter budgets already exist.');
+}
+function openTxnForm(budgetId) {
+  const dflt = VM === curMonth() ? ymd() : VM + '-01';
+  openForm({
+    title: 'Log money',
+    fields: [
+      { name: 'type', label: 'Type', type: 'seg', value: 'expense', options: [{ v: 'expense', l: 'Spent' }, { v: 'income', l: 'Extra income' }] },
+      { name: 'amount', label: 'Amount ($)', type: 'number', step: '0.01', min: 0, inputmode: 'decimal', placeholder: '24.50' },
+      { name: 'budgetId', label: 'Budget (for spending)', type: 'select', value: budgetId || (S.budgets[0] ? S.budgets[0].id : ''), options: [{ v: '', l: 'No category' }].concat(S.budgets.map(b => ({ v: b.id, l: b.emoji + ' ' + b.name }))) },
+      { name: 'date', label: 'Date', type: 'date', value: dflt, max: ymd() },
+      { name: 'note', label: 'Note (optional)', value: '', placeholder: 'Tacos', maxlength: 40 }
+    ],
+    submit: 'Log it',
+    validate: v => { if (!(parseAmt(v.amount) > 0)) return 'Enter an amount above $0.'; if (!isDate(v.date)) return 'Pick a valid date.'; if (v.date > ymd()) return 'Dates in the future aren’t allowed.'; },
+    onSubmit: v => {
+      const amt = parseAmt(v.amount), t = { id: uid(), date: v.date, type: v.type, budgetId: v.type === 'expense' ? v.budgetId : '', amount: amt, note: v.note.trim() };
+      S.txns.push(t);
+      const items = v.type === 'expense' ? [[1, 'logged spend']] : [];
+      const ci = checkIn(); if (ci) items.push(ci);
+      if (items.length) award(items); else save();
+      save();
+      if (v.type === 'expense') {
+        const b = bud(t.budgetId);
+        if (b) {
+          const s = mstats(t.date.slice(0, 7)).by[b.id];
+          if (s > b.limit) { say(b.name + ' is over budget by ' + money(s - b.limit) + '. Ouch.'); setMood('stress', 2200); }
+          else if (s / b.limit >= .85) say(b.name + ' is at ' + Math.round(s / b.limit * 100) + '%. Careful.');
+          else say('Logged. Tracking is half the battle.');
+        } else say('Logged. Tracking is half the battle.');
+      } else { say('Extra income! Now put some of it to work.'); setMood('great', 1600); }
+      render();
+    }
+  });
+}
+function delTxn(id) { S.txns = S.txns.filter(t => t.id !== id); save(); render(); toast('Entry deleted.'); }
+function delBudget(id) {
+  const b = bud(id); if (!b) return;
+  confirmBox('Delete ' + b.name + '?', 'Past spending stays in your activity list, but it will no longer belong to a budget.', 'Delete budget', () => { S.budgets = S.budgets.filter(x => x.id !== id); save(); render(); });
+}
+
+/* goals + deposits + investments */
+function openGoalForm(id, preset) {
+  const g = id ? S.goals.find(x => x.id === id) : null;
+  const em = preset === 'emergency';
+  openForm({
+    title: g ? 'Edit goal' : 'New savings goal',
+    intro: em ? 'Start with 3 months of essentials. You can raise it later.' : '',
+    fields: [
+      { name: 'name', label: 'Goal name', value: g ? g.name : em ? 'Emergency fund' : '', placeholder: 'Japan trip', maxlength: 28 },
+      { name: 'emoji', label: 'Icon', type: 'emoji', options: GOAL_EMOJI, value: g ? g.emoji : em ? '🛟' : '🎯' },
+      { name: 'target', label: 'Target amount ($)', type: 'number', step: '0.01', min: 0, inputmode: 'decimal', value: g ? g.target : em ? efTarget() : '', placeholder: '2000' }
+    ],
+    footer: g ? `<div style="text-align:center;margin-top:8px"><button class="link dng" data-a="delGoal" data-id="${g.id}">Delete this goal</button></div>` : '',
+    validate: v => { if (!v.name.trim()) return 'Name your goal.'; if (!(parseAmt(v.target) > 0)) return 'Enter a target above $0.'; },
+    onSubmit: v => {
+      if (g) { g.name = v.name.trim(); g.emoji = v.emoji; g.target = parseAmt(v.target); }
+      else { S.goals.push({ id: uid(), name: v.name.trim(), emoji: v.emoji, target: parseAmt(v.target), done: false }); say('Goal set: ' + v.name.trim() + '. Let’s stack.'); }
+      save(); render();
+    }
+  });
+}
+function delGoal(id) {
+  const g = S.goals.find(x => x.id === id); if (!g) return;
+  confirmBox('Delete ' + g.name + '?', 'Its deposit history will be removed too. Coins you already earned stay yours.', 'Delete goal', () => { S.goals = S.goals.filter(x => x.id !== id); S.deposits = S.deposits.filter(d => d.goalId !== id); save(); render(); });
+}
+function openDepositForm(goalId) {
+  if (!S.goals.length) { openGoalForm(null, 'emergency'); return; }
+  openForm({
+    title: 'Add to savings',
+    fields: [
+      { name: 'goalId', label: 'Goal', type: 'select', value: goalId || S.goals[0].id, options: S.goals.map(g => ({ v: g.id, l: g.emoji + ' ' + g.name })) },
+      { name: 'amount', label: 'Amount saved ($)', type: 'number', step: '0.01', min: 0, inputmode: 'decimal', placeholder: '100' },
+      { name: 'date', label: 'Date', type: 'date', value: ymd(), max: ymd() }
+    ],
+    submit: 'Stash it',
+    validate: v => { if (!(parseAmt(v.amount) > 0)) return 'Enter an amount above $0.'; if (!isDate(v.date) || v.date > ymd()) return 'Pick a valid date that isn’t in the future.'; },
+    onSubmit: v => {
+      const amt = parseAmt(v.amount), g = S.goals.find(x => x.id === v.goalId);
+      const before = goalSaved(g);
+      const items = [[Math.min(200, Math.max(2, Math.floor(amt / 5))), 'saved ' + money(amt)]];
+      const ci = checkIn(); if (ci) items.push(ci);
+      const dep = { id: uid(), goalId: g.id, amount: amt, date: v.date, reward: 0 };
+      S.deposits.push(dep);
+      let done = false;
+      if (!g.done && g.target > 0 && before + amt >= g.target) { g.done = true; items.push([50, 'goal reached']); done = true; }
+      dep.reward = award(items); save();
+      if (done) { burst('🎉', 18); say('GOAL REACHED: ' + g.name + '! Pop the bottle service.'); setMood('great', 2500); }
+      else { say('Saved ' + money(amt) + '. That’s a great sign.'); setMood('great', 1600); }
+      render();
+    }
+  });
+}
+function openInvestForm() {
+  openForm({
+    title: 'Log an investment',
+    intro: 'Record money you actually moved into an investment account.',
+    fields: [
+      { name: 'amount', label: 'Amount ($)', type: 'number', step: '0.01', min: 0, inputmode: 'decimal', placeholder: '200' },
+      { name: 'account', label: 'Account', type: 'select', value: 'Brokerage', options: ACCOUNTS.map(a => ({ v: a, l: a })) },
+      { name: 'date', label: 'Date', type: 'date', value: ymd(), max: ymd() },
+      { name: 'note', label: 'Note (optional)', placeholder: 'Index fund', maxlength: 40 }
+    ],
+    submit: 'Log it',
+    validate: v => { if (!(parseAmt(v.amount) > 0)) return 'Enter an amount above $0.'; if (!isDate(v.date) || v.date > ymd()) return 'Pick a valid date that isn’t in the future.'; },
+    onSubmit: v => {
+      const amt = parseAmt(v.amount);
+      const items = [[Math.min(250, 5 + Math.floor(amt / 4)), 'invested ' + money(amt)]];
+      const ci = checkIn(); if (ci) items.push(ci);
+      const rec = { id: uid(), amount: amt, account: v.account, date: v.date, note: v.note.trim(), reward: 0 };
+      S.investments.push(rec);
+      rec.reward = award(items); save();
+      say('Invested ' + money(amt) + '. Compound interest is calling.'); setMood('great', 1800);
+      render();
+    }
+  });
+}
+
+/* practice trades */
+function openTrade(t, side) {
+  const M = S.market, k = TICKERS.find(x => x.t === t), p = M.prices[t], hv = M.hold[t] * p;
+  const buy = side === 'buy';
+  openForm({
+    title: (buy ? 'Buy ' : 'Sell ') + t,
+    intro: k.name + ' is ' + money(p) + ' per share. ' + (buy ? 'You have ' + money(M.cash) + ' of practice cash.' : 'You hold ' + money(hv) + '.'),
+    fields: [{ name: 'amount', label: 'Amount ($)', type: 'number', step: '0.01', min: 0, inputmode: 'decimal', placeholder: buy ? '1000' : String(Math.floor(hv)) }],
+    submit: buy ? 'Buy' : 'Sell',
+    validate: v => { const a = parseAmt(v.amount); if (!(a > 0)) return 'Enter an amount above $0.'; if (buy && a > M.cash + 0.005) return 'That’s more than your practice cash.'; if (!buy && a > hv + 0.005) return 'That’s more than you hold.'; },
+    onSubmit: v => {
+      const a = parseAmt(v.amount);
+      if (buy) { M.hold[t] += a / p; M.cost[t] += a; M.cash -= a; }
+      else { const sh = Math.min(M.hold[t], a / p), frac = M.hold[t] ? sh / M.hold[t] : 0; M.cost[t] *= (1 - frac); M.hold[t] -= sh; M.cash += a; if (M.hold[t] < 1e-6) { M.hold[t] = 0; M.cost[t] = 0; } }
+      M.trades++; save(); render();
+      say(buy ? 'Bought ' + t + '. Never invest more than you can afford to lose. Real life, I mean.' : 'Sold some ' + t + '. Taking profits or cutting losses, either way you learned.');
+    }
+  });
+}
+function sellAll(t) {
+  const M = S.market, p = M.prices[t]; if (!(M.hold[t] > 0)) return;
+  M.cash += M.hold[t] * p; M.hold[t] = 0; M.cost[t] = 0; M.trades++; save(); render(); toast('Sold all ' + t + '.');
+}
+
+/* feed / chat / pet */
+const EAT_LINES = ['Nom. Best expense ever.', 'Fuel for the grind.', 'Om nom. Tax-deductible, probably not.', 'That hit the spot, boss.'];
+function openFeed() {
+  const foods = [{ id: 'water', name: 'Sparkling water', emoji: '💧', fed: 4, fun: 0, qty: Infinity }].concat(ITEMS.filter(i => i.slot === 'snack' && (S.inv[i.id] || 0) > 0).map(i => Object.assign({}, i, { qty: S.inv[i.id] })));
+  openModal(`<h2>Feed ${esc(S.name)}</h2><p class="muted">Snacks come from the Shop. Water is always free.</p><div class="feed-list">${foods.map(f => `<button class="feed-item" data-a="eat" data-id="${f.id}"><span class="fe" aria-hidden="true">${f.emoji}</span><span class="grow1"><b>${esc(f.name)}</b><small>+${f.fed} full${f.fun ? ', +' + f.fun + ' fun' : ''}</small></span><em>${f.qty === Infinity ? 'free' : '×' + f.qty}</em></button>`).join('')}</div><div class="row end"><button class="btn" data-a="tab" data-tab="shop" data-slot="snack">Buy snacks</button><button class="btn ghost" data-a="closeModal">Close</button></div>`);
+}
+function eat(id) {
+  const f = id === 'water' ? { fed: 4, fun: 0 } : ITEM[id];
+  if (id !== 'water') { if (!(S.inv[id] > 0)) return; S.inv[id]--; }
+  if (S.fed >= 98 && S.fun >= 98) { toast('Stuffed and thrilled already. Save the snack.'); if (id !== 'water') S.inv[id]++; return; }
+  S.fed = Math.min(100, S.fed + f.fed); S.fun = Math.min(100, S.fun + (f.fun || 0));
+  save(); closeModal(true); setMood('eat', 1600); say(pick1(EAT_LINES)); render();
+}
+function chat() {
+  const a = advice(); if (!a.length) return;
+  const x = a[S.advIdx % a.length]; S.advIdx++; save();
+  say(x.say); setMood(x.tone === 'warn' ? 'stress' : x.tone === 'good' ? 'great' : 'happy', 1800);
+}
+const PET_LINES = ['Hehe, that tickles.', 'Bro. Bro. Bro. Love it.', 'Vibes: immaculate.', 'Dollar-cost averaging your affection. Smart.', 'You get +2 fun. I get +2 fun. Win-win.', 'Okay okay okay, I’m thriving.'];
+let petN = 0;
+function pet(e) {
+  S.fun = Math.min(100, S.fun + 2);
+  const wrap = e.target.closest('.scene-wrap'), r = wrap.getBoundingClientRect();
+  if (!RM) {
+    const h = document.createElement('span'); h.className = 'heart'; h.textContent = pick1(['💚', '💖', '✨']);
+    h.style.left = ((e.clientX || r.left + r.width / 2) - r.left - 10) + 'px'; h.style.top = ((e.clientY || r.top + r.height / 2) - r.top - 10) + 'px';
+    wrap.appendChild(h); setTimeout(() => h.remove(), 1000);
+  }
+  petN++; if (petN % 3 === 1) say(pick1(PET_LINES));
+  setMood('great', 900); updateMeters(); if (petN % 5 === 0) save();
+}
+
+/* shop actions */
+function buy(id) {
+  const it = ITEM[id]; if (!it || S.coins < it.price) return;
+  S.coins -= it.price;
+  if (it.slot === 'snack') { S.inv[id] = (S.inv[id] || 0) + 1; save(); render(); toast('Bought ' + it.name + '. Feed it from the Home tab.'); return; }
+  S.owned.push(id); S.eq[it.slot] = id; PV = null; save(); render(); burst('✨', 12);
+  say(pick1(['Oh, that’s a good look.', 'Ten out of ten. Would expense again.', 'I feel like a million bucks. Actually, a few hundred coins.'])); setMood('great', 1800);
+}
+function equip(id) { const it = ITEM[id]; if (!S.owned.includes(id)) return; S.eq[it.slot] = id; if (PV && PV.slot === it.slot) PV = null; save(); render(); }
+
+/* quests */
+function claim(id) {
+  const q = QUESTS.find(x => x.id === id); if (!q) return;
+  const s = qState(q); if (!s.ready || s.claimed) return;
+  S.claimed[qKey(q)] = true;
+  award([[q.reward, q.t]], { nocap: true }); save(); render();
+  say('Quest complete: ' + q.t + '. Look at you go.'); setMood('great', 2000);
+}
+
+/* settings + data */
+function openSettings() {
+  openForm({
+    title: 'Settings',
+    pre: `<div class="set-prev" id="setPrev">${broSVG({ vb: '20 10 160 160', mood: 'happy' })}</div>`,
+    fields: [
+      { name: 'name', label: 'Bro’s name', value: S.name, maxlength: 14 },
+      { name: 'income', label: 'Monthly take-home income ($)', type: 'number', step: '0.01', min: 0, inputmode: 'decimal', value: S.income || '', placeholder: '3500', hint: 'After taxes. Used to size budgets and savings rate.' },
+      { name: 'skin', label: 'Skin tone', type: 'seg', value: String(S.skin), options: SKINS.map((c, i) => ({ v: String(i), l: 'Skin tone ' + (i + 1), sw: c })) },
+      { name: 'hair', label: 'Hair style', type: 'seg', value: String(S.hair), options: HAIR_STYLES.map((l, i) => ({ v: String(i), l })) },
+      { name: 'hc', label: 'Hair color', type: 'seg', value: String(S.hc), options: HAIRS.map((c, i) => ({ v: String(i), l: 'Hair color ' + (i + 1), sw: c })) }
+    ],
+    footer: `<div class="row" style="justify-content:center;margin-top:12px"><button class="link" data-a="export">Export data</button><button class="link" data-a="import">Import data</button><button class="link dng" data-a="reset">Erase everything</button></div><p class="fine" style="text-align:center;margin:8px 0 0">Data lives only in this browser. Export a backup now and then.</p>`,
+    validate: v => { if (!v.name.trim()) return 'Your bro needs a name.'; if (v.income !== '' && !(parseAmt(v.income) >= 0)) return 'Enter a valid income.'; },
+    onSubmit: v => {
+      S.name = v.name.trim(); S.income = v.income === '' ? 0 : parseAmt(v.income);
+      S.skin = +v.skin; S.hair = +v.hair; S.hc = +v.hc; save(); render();
+      toast('Settings saved.');
+    }
+  });
+}
+function updateSetPrev() {
+  const f = $('#mform'); if (!f) return;
+  const g = n => +f.elements[n].value;
+  $('#setPrev').innerHTML = broSVG({ skin: g('skin'), hair: g('hair'), hc: g('hc'), vb: '20 10 160 160', mood: 'happy' });
+}
+function openExport() {
+  openModal(`<h2>Export data</h2><p class="muted">Copy this text and keep it somewhere safe. You can paste it back with Import.</p><textarea id="expTa" readonly>${esc(JSON.stringify(S))}</textarea><div class="row end"><button class="btn ghost" data-a="closeModal">Close</button><button class="btn primary" data-a="copyExport">Copy</button></div>`);
+}
+function copyExport() {
+  const ta = $('#expTa'); ta.select();
+  const done = () => toast('Copied to clipboard.');
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(ta.value).then(done, () => { try { document.execCommand('copy'); done(); } catch (e) { toast('Select the text and copy it manually.'); } });
+  else { try { document.execCommand('copy'); done(); } catch (e) { toast('Select the text and copy it manually.'); } }
+}
+function openImport() {
+  openModal(`<h2>Import data</h2><p class="muted">Paste an export from this app. This replaces everything currently saved.</p><textarea id="impTa" placeholder="Paste export here"></textarea><p class="err" id="impErr" role="alert"></p><div class="row end"><button class="btn ghost" data-a="closeModal">Cancel</button><button class="btn primary" data-a="doImport">Import</button></div>`);
+}
+function doImport() {
+  try {
+    const o = JSON.parse($('#impTa').value);
+    if (!o || typeof o !== 'object' || o.v !== 1 || !Array.isArray(o.budgets)) throw new Error('bad');
+    const d = defaults(); S = Object.assign(d, o, { eq: Object.assign(d.eq, o.eq || {}) });
+    save(); closeModal(true); PV = null; VM = curMonth(); tickNeeds(); BUBBLE = 'Welcome back, boss. Data restored.'; render(); toast('Data imported.');
+  } catch (e) { $('#impErr').textContent = 'That doesn’t look like a valid export.'; }
+}
+function doReset() {
+  S = defaults(); save(); PV = null; TAB = 'home'; VM = curMonth(); render(); showOnboarding();
+}
+
+/* =====================================================================
+   ONBOARDING
+   ===================================================================== */
+let OB = { skin: 1, hair: 0, hc: 0 };
+function showOnboarding() {
+  OB = { skin: 1, hair: 0, hc: 0 };
+  const old = $('#onboard'); if (old) old.remove();
+  const w = document.createElement('div'); w.id = 'onboard'; w.className = 'onboard';
+  w.innerHTML = `<div class="ob-card" role="dialog" aria-modal="true" aria-label="Create your finance bro">
+<h1 class="ob-title">My Little<br>Finance Bro</h1>
+<p class="ob-sub">Budget for real. Earn coins for saving and investing. Dress your bro like a man with a plan.</p>
+<div class="ob-preview" id="obPreview"></div>
+<div class="ob-chips" id="obChips"></div>
+<form id="obForm" novalidate>
+<div class="field"><label for="obName">Name your bro</label><input id="obName" maxlength="14" placeholder="Chad" autocomplete="off"></div>
+<div class="field"><label for="obInc">Monthly take-home pay (optional)</label><input id="obInc" type="number" inputmode="decimal" min="0" step="0.01" placeholder="3500" autocomplete="off"><small>After taxes. You can change it any time.</small></div>
+<label class="check"><input type="checkbox" id="obStarter" checked> Build me a starter 50/30/20 budget</label>
+<p class="err" id="obErr" role="alert"></p>
+<button class="btn primary big" type="submit">Meet your bro</button>
+</form>
+<p class="fine" style="text-align:center;margin-top:14px">Everything stays in this browser. Bro tips are general education, not personalized financial advice.</p></div>`;
+  document.body.appendChild(w); document.body.classList.add('noscroll');
+  drawOb();
+  $('#obForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const inc = $('#obInc').value.trim();
+    if (inc !== '' && !(parseAmt(inc) >= 0)) { $('#obErr').textContent = 'Enter a valid income or leave it blank.'; return; }
+    S.name = $('#obName').value.trim() || 'Chad'; S.income = inc === '' ? 0 : parseAmt(inc);
+    S.skin = OB.skin; S.hair = OB.hair; S.hc = OB.hc; S.onboarded = true; S.lastTick = Date.now();
+    if ($('#obStarter').checked && S.income > 0) AUTO.forEach(([emoji, name, share]) => S.budgets.push({ id: uid(), name, emoji, limit: Math.max(5, Math.round(S.income * share / 5) * 5) }));
+    save(); w.remove(); document.body.classList.remove('noscroll');
+    BUBBLE = 'Yo! I’m ' + S.name + '. Log your money, earn coins, and get me a vest.';
+    render(); toast('Welcome! You start with 50 coins.', { coin: true });
+  });
+  setTimeout(() => $('#obName').focus({ preventScroll: true }), 50);
+}
+function drawOb() {
+  $('#obPreview').innerHTML = broSVG({ eq: { hat: null, eyes: null, top: 'tee', neck: null, bg: 'office' }, mood: 'happy', skin: OB.skin, hair: OB.hair, hc: OB.hc });
+  const sw = (k, arr, lbl) => arr.map((c, i) => `<button type="button" class="swatch ${OB[k] === i ? 'on' : ''}" style="--sw:${c}" data-a="obSet" data-k="${k}" data-v="${i}" aria-label="${lbl} ${i + 1}" aria-pressed="${OB[k] === i}"></button>`).join('');
+  $('#obChips').innerHTML = `<div class="lbl">Skin tone</div><div class="seg">${sw('skin', SKINS, 'Skin tone')}</div><div class="lbl">Hair style</div><div class="seg">${HAIR_STYLES.map((l, i) => `<button type="button" class="${OB.hair === i ? 'on' : ''}" data-a="obSet" data-k="hair" data-v="${i}" aria-pressed="${OB.hair === i}">${l}</button>`).join('')}</div><div class="lbl">Hair color</div><div class="seg">${sw('hc', HAIRS, 'Hair color')}</div>`;
+}
+
+/* =====================================================================
+   EVENTS
+   ===================================================================== */
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-a]'); if (!el || el.disabled) return;
+  const d = el.dataset;
+  switch (d.a) {
+    case 'tab': setTab(d.tab, d.gt, d.slot); break;
+    case 'gt': GT = d.gt; render(); break;
+    case 'slot': SL = d.slot; render(); break;
+    case 'vm': VM = shiftMonth(VM, +d.d); if (VM > curMonth()) VM = curMonth(); render(); break;
+    case 'pet': pet(e); break;
+    case 'feed': openFeed(); break;
+    case 'eat': eat(d.id); break;
+    case 'chat': chat(); break;
+    case 'settings': openSettings(); break;
+    case 'closeModal': closeModal(); break;
+    case 'pick': pickBtn(el); break;
+    case 'confirmYes': { const f = CONFIRM; CONFIRM = null; closeModal(true); if (f) f(); break; }
+    case 'newBudget': openBudgetForm(); break;
+    case 'editBudget': openBudgetForm(d.id); break;
+    case 'delBudget': delBudget(d.id); break;
+    case 'autoBudget': autoBudget(); break;
+    case 'newTxn': openTxnForm(d.b); break;
+    case 'delTxn': delTxn(d.id); break;
+    case 'newGoal': openGoalForm(null, d.preset); break;
+    case 'editGoal': openGoalForm(d.id); break;
+    case 'delGoal': delGoal(d.id); break;
+    case 'newDeposit': openDepositForm(d.id); break;
+    case 'delDeposit': { const x = S.deposits.find(v => v.id === d.id); if (x) { reverseReward(x.reward); S.deposits = S.deposits.filter(v => v.id !== d.id); save(); render(); toast('Deposit removed' + (x.reward ? ' and its coins returned.' : '.')); } break; }
+    case 'newInvest': openInvestForm(); break;
+    case 'delInvest': { const x = S.investments.find(v => v.id === d.id); if (x) { reverseReward(x.reward); S.investments = S.investments.filter(v => v.id !== d.id); save(); render(); toast('Entry removed' + (x.reward ? ' and its coins returned.' : '.')); } break; }
+    case 'trade': openTrade(d.t, d.side); break;
+    case 'sellAll': sellAll(d.t); break;
+    case 'mday': stepMarket(+d.n); S.market.last = Date.now(); save(); render(); break;
+    case 'mreset': confirmBox('Reset practice portfolio?', 'You’ll start over with $10,000 of practice cash and new prices.', 'Reset', () => { S.market = null; save(); render(); }); break;
+    case 'try': PV = (PV && PV.id === d.id) ? null : { slot: d.slot, id: d.id }; render(); break;
+    case 'clearPV': PV = null; render(); break;
+    case 'buy': buy(d.id); break;
+    case 'equip': equip(d.id); break;
+    case 'unequip': S.eq[d.slot] = null; save(); render(); break;
+    case 'claim': claim(d.id); break;
+    case 'export': openExport(); break;
+    case 'copyExport': copyExport(); break;
+    case 'import': openImport(); break;
+    case 'doImport': doImport(); break;
+    case 'reset': confirmBox('Erase everything?', 'This deletes your bro, budgets, goals, coins and outfits from this browser. Export first if you want a backup.', 'Erase everything', doReset); break;
+    case 'obSet': OB[d.k] = +d.v; drawOb(); break;
+  }
+});
+document.addEventListener('input', e => { if (e.target.closest && e.target.closest('[data-calc]')) updateCalc(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && $('#modal')) closeModal(); });
+document.addEventListener('visibilitychange', () => { if (!document.hidden) { tickNeeds(); save(); render(); } });
+
+/* =====================================================================
+   INIT
+   ===================================================================== */
+tickNeeds();
+if (S.market) catchUpMarket();
+{ const a = advice(); BUBBLE = S.onboarded ? (a.length ? a[0].say : 'Tap me. I dare you.') : 'Yo! Make me look good.'; }
+render();
+if (!S.onboarded) showOnboarding();
+setInterval(() => { tickNeeds(); save(); updateMeters(); refreshBro(); }, 60000);
+</script>
+</body>
+</html>
